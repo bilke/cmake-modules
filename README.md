@@ -20,13 +20,19 @@ For the initial checkout:
 
 	cd projectdir
 
-	git subtree add --squash --prefix=cmake git://github.com/bilke/cmake-modules.git master
+	git subtree add --squash --prefix=cmake git@github.com:bilke/cmake-modules.git master
 
 For updates:
 
 	cd projectdir
 
-	git subtree pull --squash --prefix=cmake git://github.com/bilke/cmake-modules.git master
+	git subtree pull --squash --prefix=cmake git@github.com:bilke/cmake-modules.git master
+
+For pushing to upstream:
+
+	cd projectdir
+	
+	git subtree push --prefix=cmake git@github.com:bilke/cmake-modules.git master
 
 
 How to Use
