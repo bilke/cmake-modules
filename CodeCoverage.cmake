@@ -43,7 +43,7 @@ LINK_LIBRARIES(gcov)
 
 
 # Param _targetname     The name of new the custom make target
-# Param _testrunnerexe  The executable name which runs the tests
+# Param _testrunner     The name of the target which runs the tests
 # Param _outputname     lcov output is generated as _outputname.info
 #                       HTML report is generated in _outputname/index.html
 FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunnerexe _outputname)
@@ -55,7 +55,7 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunnerexe _outputname)
 		lcov --directory . --zerocounters
 		
 		# Run tests
-		COMMAND ${_testrunnerexe}
+		COMMAND ${_testrunner}
 		
 		# Capturing lcov counters and generating report
 		COMMAND lcov --directory . --capture --output-file ${_outputname}.info
@@ -63,7 +63,7 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunnerexe _outputname)
 		COMMAND genhtml -o ${_outputname} ${_outputname}.info.cleaned
 		COMMAND ${CMAKE_COMMAND} -E remove ${_outputname}.info ${_outputname}.info.cleaned
 		
-		DEPENDS ${_testrunnerexe}
+		DEPENDS ${_testrunner}
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 		COMMENT "Resetting code coverage counters to zero.\n
 			Processing code coverage counters and generating report."
