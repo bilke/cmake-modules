@@ -15,7 +15,7 @@
 function(option_requires name desc)
 	set(args ${ARGN})
 
-	set(OFF_BY_DEFAULT false)
+	set(OFF_BY_DEFAULT true)
 	list(FIND args "OFF_BY_DEFAULT" _off_found)
 	if(NOT _off_found EQUAL -1)
 		list(REMOVE_AT args ${_off_found})
