@@ -15,6 +15,7 @@
 FIND_PROGRAM( GCOV_PATH gcov )
 FIND_PROGRAM( LCOV_PATH lcov )
 FIND_PROGRAM( GENHTML_PATH genhtml )
+FIND_PROGRAM( GCOVR_PATH gcovr)
 
 IF(NOT GCOV_PATH)
 	MESSAGE(FATAL_ERROR "gcov not found! Aborting...")
@@ -74,5 +75,27 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner _outputname)
 		COMMAND ;
 		COMMENT "Open ./${_outputname}/index.html in your browser to view the coverage report."
 	)
+	
+	# This target produces a Jenkins readable Cobertura report
+	IF(GCOVR_PATH AND PYTHON_EXECUTABLE)
+
+		ADD_CUSTOM_TARGET(${_targetname}_cobertura
+
+			# Run tests
+			${_testrunner}
+
+			# Running gcovr
+			COMMAND ${GCOVR_PATH} -x -r ${CMAKE_SOURCE_DIR} -o ${_outputname}.xml
+			WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+			COMMENT "Running gcovr to produce Cobertura code coverage report."
+		)
+
+		# Show info where to find the report
+		ADD_CUSTOM_COMMAND(TARGET ${_targetname}_cobertura POST_BUILD
+			COMMAND ;
+			COMMENT "Cobertura code coverage report saved in ${_outputname}.xml."
+		)
+		
+	ENDIF() # GCOVR_PATH AND PythonInterp_FOUND
 
 ENDFUNCTION() # SETUP_TARGET_FOR_COVERAGE
