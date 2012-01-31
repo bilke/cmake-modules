@@ -46,7 +46,7 @@ LINK_LIBRARIES(gcov)
 # Param _testrunner     The name of the target which runs the tests
 # Param _outputname     lcov output is generated as _outputname.info
 #                       HTML report is generated in _outputname/index.html
-FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunnerexe _outputname)
+FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner _outputname)
 
 	# Setup target
 	ADD_CUSTOM_TARGET(${_targetname}
