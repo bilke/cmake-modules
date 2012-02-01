@@ -48,7 +48,7 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner _outputname)
 	IF(NOT GENHTML_PATH)
 		MESSAGE(FATAL_ERROR "genhtml not found! Aborting...")
 	ENDIF() # NOT GENHTML_PATH
-	
+
 	# Setup target
 	ADD_CUSTOM_TARGET(${_targetname}
 		
@@ -86,11 +86,11 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE_COBERTURA _targetname _testrunner _outputname
 	IF(NOT PYTHON_EXECUTABLE)
 		MESSAGE(FATAL_ERROR "Python not found! Aborting...")
 	ENDIF() # NOT PYTHON_EXECUTABLE
-	
+
 	IF(NOT GCOVR_PATH)
 		MESSAGE(FATAL_ERROR "gcovr not found! Aborting...")
 	ENDIF() # NOT GCOVR_PATH
-	
+
 	ADD_CUSTOM_TARGET(${_targetname}
 
 		# Run tests
