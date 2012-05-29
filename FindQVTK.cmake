@@ -11,7 +11,8 @@
 # QVTK_LIBRARY is appended to QVTK_LIBRARY_DIR.
 #
 
-find_library (QVTK_LIBRARY QVTK HINT ${VTK_DIR})
+find_library (QVTK_LIBRARY QVTK HINTS ${VTK_DIR} ${VTK_DIR}/bin
+  PATH_SUFFIXES Release Debug)
 find_path (QVTK_INCLUDE_DIR QVTKWidget.h HINT ${VTK_INCLUDE_DIRS})
 find_package_handle_standard_args(QVTK DEFAULT_MSG
   QVTK_LIBRARY QVTK_INCLUDE_DIR)
