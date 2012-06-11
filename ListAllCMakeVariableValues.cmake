@@ -2,7 +2,7 @@
 #
 # Usage:
 #
-#  INCLUDE(ListAllCMakeVariabelValues)
+#  INCLUDE(ListAllCMakeVariableValues)
 #  list_all_cmake_variable_values()
 
 function(list_all_cmake_variable_values)
