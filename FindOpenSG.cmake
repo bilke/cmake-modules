@@ -39,6 +39,9 @@ MACRO(USE_OPENSG targetName)
 		)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4231 /wd4275")
 	ENDIF (MSVC)
+	IF(OpenSG_OSGWINDOWGLUT_LIBRARY)
+		ADD_DEFINITIONS(-DOSG_WITH_GLUT)
+	ENDIF()
 	TARGET_LINK_LIBRARIES( ${targetName} ${OpenSG_LIBRARIES} )
 	INCLUDE_DIRECTORIES( ${OpenSG_INCLUDE_DIRS} )
 ENDMACRO()
@@ -86,28 +89,28 @@ MACRO(__OpenSG_ADJUST_LIB_VARS basename)
 
             SET(OpenSG_${basename}_LIBRARIES optimized ${OpenSG_${basename}_LIBRARY_RELEASE} debug ${OpenSG_${basename}_LIBRARY_DEBUG})
         ENDIF(OpenSG_${basename}_LIBRARY_DEBUG AND OpenSG_${basename}_LIBRARY_RELEASE)
-    
+
         # if only the release version was found, set the debug variable also to the release version
         IF(OpenSG_${basename}_LIBRARY_RELEASE AND NOT OpenSG_${basename}_LIBRARY_DEBUG)
             SET(OpenSG_${basename}_LIBRARY_DEBUG ${OpenSG_${basename}_LIBRARY_RELEASE})
             SET(OpenSG_${basename}_LIBRARY       ${OpenSG_${basename}_LIBRARY_RELEASE})
             SET(OpenSG_${basename}_LIBRARIES     ${OpenSG_${basename}_LIBRARY_RELEASE})
         ENDIF(OpenSG_${basename}_LIBRARY_RELEASE AND NOT OpenSG_${basename}_LIBRARY_DEBUG)
-    
+
         # if only the debug version was found, set the release variable also to the debug version
         IF(OpenSG_${basename}_LIBRARY_DEBUG AND NOT OpenSG_${basename}_LIBRARY_RELEASE)
             SET(OpenSG_${basename}_LIBRARY_RELEASE ${OpenSG_${basename}_LIBRARY_DEBUG})
             SET(OpenSG_${basename}_LIBRARY         ${OpenSG_${basename}_LIBRARY_DEBUG})
             SET(OpenSG_${basename}_LIBRARIES       ${OpenSG_${basename}_LIBRARY_DEBUG})
         ENDIF(OpenSG_${basename}_LIBRARY_DEBUG AND NOT OpenSG_${basename}_LIBRARY_RELEASE)
-        
+
         IF(OpenSG_${basename}_LIBRARY)
             SET(OpenSG_${basename}_LIBRARY ${OpenSG_${basename}_LIBRARY} CACHE FILEPATH "The OpenSG ${basename} library")
             GET_FILENAME_COMPONENT(OpenSG_LIBRARY_DIRS "${OpenSG_${basename}_LIBRARY}" PATH)
             SET(OpenSG_LIBRARY_DIRS ${OpenSG_LIBRARY_DIRS} CACHE FILEPATH "OpenSG library directory")
             SET(OpenSG_${basename}_FOUND ON CACHE INTERNAL "Whether the OpenSG ${basename} library found")
         ENDIF(OpenSG_${basename}_LIBRARY)
-    
+
     ENDIF(OpenSG_INCLUDE_DIR)
 
     # Make variables changeble to the advanced user
@@ -149,8 +152,8 @@ ELSE(__OpenSG_IN_CACHE)
 	    ${OPENSG_ROOT}/lib
 	    ${LIBRARIES_DIR}/opensg/lib
 	    ${CMAKE_SOURCE_DIR}/../opensg/lib )
-	else (VS32)  
-	  if (VS64) 
+	else (VS32)
+	  if (VS64)
 	    # Visual Studio x64
 		SET( __OpenSG_INCLUDE_SEARCH_DIRS
 		$ENV{OPENSG_ROOT}/include
@@ -162,17 +165,17 @@ ELSE(__OpenSG_IN_CACHE)
 		${OPENSG_ROOT}/lib
 	      ${LIBRARIES_DIR}/opensg_x64/lib
 	      ${CMAKE_SOURCE_DIR}/../opensg_x64/lib )
-	  else (VS64)  
+	  else (VS64)
 	    # Linux or Mac
 		SET( __OpenSG_INCLUDE_SEARCH_DIRS
           "/usr/local"
 	      "/usr/local/include" )
 		SET( __OpenSG_LIBRARIES_SEARCH_DIRS
 	      "/usr/local"
-	      "/usr/local/lib" )	  
+	      "/usr/local/lib" )
 	  endif(VS64)
 	endif (VS32)
-	
+
 
     # handle input variable OPENSG_INCLUDE_DIR
     IF(OPENSG_INCLUDE_DIR)
@@ -187,7 +190,7 @@ ELSE(__OpenSG_IN_CACHE)
         SET(__OpenSG_LIBRARIES_SEARCH_DIRS
             ${OPENSG_LIBRARY_DIR} ${__OpenSG_LIBRARIES_SEARCH_DIRS})
     ENDIF(OPENSG_LIBRARY_DIR)
-    
+
     # handle input variable OPENSG_INCLUDE_SEARCH_DIR
     IF(OPENSG_INCLUDE_SEARCH_DIR)
         FILE(TO_CMAKE_PATH ${OPENSG_INCLUDE_SEARCH_DIR} OPENSG_INCLUDE_SEARCH_DIR)
@@ -217,15 +220,15 @@ ELSE(__OpenSG_IN_CACHE)
         SET(OpenSG_${UPPERCOMPONENT}_LIBRARY "OpenSG_${UPPERCOMPONENT}_LIBRARY-NOTFOUND" )
         SET(OpenSG_${UPPERCOMPONENT}_LIBRARY_RELEASE "OpenSG_${UPPERCOMPONENT}_LIBRARY_RELEASE-NOTFOUND" )
         SET(OpenSG_${UPPERCOMPONENT}_LIBRARY_DEBUG "OpenSG_${UPPERCOMPONENT}_LIBRARY_DEBUG-NOTFOUND")
-    
+
 	IF (WIN32)
         FIND_LIBRARY(OpenSG_${UPPERCOMPONENT}_LIBRARY_RELEASE
             NAMES  ${COMPONENT}
             HINTS  ${__OpenSG_LIBRARIES_SEARCH_DIRS}
         )
-	
+
 		#message(STATUS "OpenSG Component: " ${COMPONENT})
-    
+
         FIND_LIBRARY(OpenSG_${UPPERCOMPONENT}_LIBRARY_DEBUG
 	    # 1.8 Added the "D" suffix
             NAMES  ${COMPONENT}D
@@ -239,16 +242,16 @@ ELSE(__OpenSG_IN_CACHE)
             HINTS  ${__OpenSG_LIBRARIES_SEARCH_DIRS}
 	    PATH_SUFFIXES "/opt"
         )
-	
+
 		#message(STATUS "OpenSG Component: " ${COMPONENT})
-    
+
         FIND_LIBRARY(OpenSG_${UPPERCOMPONENT}_LIBRARY_DEBUG
             NAMES  ${COMPONENT}
             HINTS  ${__OpenSG_LIBRARIES_SEARCH_DIRS}
 	    PATH_SUFFIXES "/dbg"
         )
 	ENDIF(WIN32)
-    
+
         __OpenSG_ADJUST_LIB_VARS(${UPPERCOMPONENT})
     ENDFOREACH(COMPONENT)
     # ------------------------------------------------------------------------
@@ -286,7 +289,7 @@ ELSE(__OpenSG_IN_CACHE)
                 SET(OpenSG_ERROR_REASON
                     "${OpenSG_ERROR_REASON}        ${COMPONENT}\n")
             ENDFOREACH(COMPONENT)
-        
+
             LIST(LENGTH OpenSG_FIND_COMPONENTS __OpenSG_NUM_COMPONENTS_WANTED)
             LIST(LENGTH __OpenSG_MISSING_COMPONENTS __OpenSG_NUM_MISSING_COMPONENTS)
             IF(${__OpenSG_NUM_COMPONENTS_WANTED} EQUAL ${__OpenSG_NUM_MISSING_COMPONENTS})
