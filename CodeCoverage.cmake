@@ -7,6 +7,10 @@
 # - Some additional usage instructions.
 #
 # USAGE:
+
+# 0. (Mac only) If you use Xcode 5.1 make sure to patch geninfo as described here:
+#      http://stackoverflow.com/a/22404544/80480
+#
 # 1. Copy this file into your cmake modules path.
 #
 # 2. Add the following line to your CMakeLists.txt:
