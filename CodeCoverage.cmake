@@ -102,10 +102,6 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner _outputname)
 		MESSAGE(FATAL_ERROR "genhtml not found! Aborting...")
 	ENDIF() # NOT GENHTML_PATH
 
-	IF(NOT LCOV_REMOVE_EXTRA)
-		set(LCOV_REMOVE_EXTRA "")
-	ENDIF() # NOT LCOV_REMOVE_EXTRA
-
 	# Setup target
 	ADD_CUSTOM_TARGET(${_targetname}
 		
