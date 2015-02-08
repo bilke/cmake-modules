@@ -31,7 +31,7 @@ For updates:
 For pushing to upstream:
 
 	cd projectdir
-	
+
 	git subtree push --prefix=cmake git@github.com:bilke/cmake-modules.git master
 
 
@@ -61,9 +61,10 @@ The modules that are written by Ryan Pavlik are all subject to this license:
 > (See accompanying file `LICENSE_1_0.txt` or copy at
 > <http://www.boost.org/LICENSE_1_0.txt>)
 
-Modules based on those included with CMake are under the OSI-approved
-BSD license, which is included in each of those modules.  A few other modules
-are modified from other sources - when in doubt, look at the .cmake.
+Modules based on those included with CMake as well as modules added by me (Lars
+Bilke) are under the OSI-approved **BSD** license, which is included in each of
+those modules. A few other modules are modified from other sources - when in
+doubt, look at the .cmake.
 
 Important License Note!
 -----------------------
