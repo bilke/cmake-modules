@@ -121,6 +121,7 @@ ENDIF() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
 #                       HTML report is generated in _outputname/index.html
 # Optional fourth parameter is passed as arguments to _testrunner
 #   Pass them in list form, e.g.: "-j;2" for -j 2
+# Optional ${CODE_COVERAGE_EXCLUSION} to exclude specific file for code coverage analysis
 FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner _outputname)
 
 	IF(NOT LCOV_PATH)
@@ -142,7 +143,7 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner _outputname)
 
 		# Capturing lcov counters and generating report
 		COMMAND ${LCOV_PATH} --directory . --capture --output-file ${_outputname}.info
-		COMMAND ${LCOV_PATH} --remove ${_outputname}.info 'tests/*' '/usr/*' --output-file ${_outputname}.info.cleaned
+		COMMAND ${LCOV_PATH} --remove ${_outputname}.info 'tests/*' '/usr/*' ${CODE_COVERAGE_EXCLUSION} --output-file ${_outputname}.info.cleaned
 		COMMAND ${GENHTML_PATH} -o ${_outputname} ${_outputname}.info.cleaned
 		COMMAND ${CMAKE_COMMAND} -E remove ${_outputname}.info ${_outputname}.info.cleaned
 
