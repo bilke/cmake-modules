@@ -60,6 +60,12 @@
 #				coverage            # Name of output directory.
 #				)
 #
+#    If you need to exclude additional directories from the report, specify them
+#    using the LCOV_REMOVE_EXTRA variable before calling SETUP_TARGET_FOR_COVERAGE.
+#    For example:
+#
+#    set(LCOV_REMOVE_EXTRA "'thirdparty/*'")
+#
 # 4. Build a Debug build:
 #	 cmake -DCMAKE_BUILD_TYPE=Debug ..
 #	 make
