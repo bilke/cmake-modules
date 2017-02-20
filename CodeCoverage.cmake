@@ -60,6 +60,12 @@
 #				coverage            # Name of output directory.
 #				)
 #
+#    If you need to exclude additional directories from the report, specify them
+#    using the LCOV_REMOVE_EXTRA variable before calling SETUP_TARGET_FOR_COVERAGE.
+#    For example:
+#
+#    set(LCOV_REMOVE_EXTRA "'thirdparty/*'")
+#
 # 4. Build a Debug build:
 #	 cmake -DCMAKE_BUILD_TYPE=Debug ..
 #	 make
@@ -146,7 +152,7 @@ FUNCTION(SETUP_TARGET_FOR_COVERAGE _targetname _testrunner _outputname)
 
 		# Capturing lcov counters and generating report
 		COMMAND ${LCOV_PATH} --directory . --capture --output-file ${coverage_info}
-		COMMAND ${LCOV_PATH} --remove ${coverage_info} 'tests/*' '/usr/*' --output-file ${coverage_cleaned}
+		COMMAND ${LCOV_PATH} --remove ${coverage_info} 'tests/*' '/usr/*' ${LCOV_REMOVE_EXTRA} --output-file ${coverage_cleaned}
 		COMMAND ${GENHTML_PATH} -o ${_outputname} ${coverage_cleaned}
 		COMMAND ${CMAKE_COMMAND} -E remove ${coverage_info} ${coverage_cleaned}
 
