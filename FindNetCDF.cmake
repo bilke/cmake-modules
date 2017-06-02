@@ -28,7 +28,7 @@
 if (NETCDF_INCLUDES AND NETCDF_LIBRARIES)
   # Already in cache, be silent
   set (NETCDF_FIND_QUIETLY TRUE)
-endif ()
+endif (NETCDF_INCLUDES AND NETCDF_LIBRARIES)
 
 find_path (NETCDF_INCLUDES netcdf.h
   HINTS NETCDF_DIR ENV NETCDF_DIR)
@@ -50,12 +50,12 @@ macro (NetCDF_check_interface lang header libs)
     mark_as_advanced (NETCDF_INCLUDES_${lang} NETCDF_LIBRARIES_${lang})
     if (NETCDF_INCLUDES_${lang} AND NETCDF_LIBRARIES_${lang})
       list (INSERT NetCDF_libs 0 ${NETCDF_LIBRARIES_${lang}}) # prepend so that -lnetcdf is last
-    else ()
+    else (NETCDF_INCLUDES_${lang} AND NETCDF_LIBRARIES_${lang})
       set (NetCDF_has_interfaces "NO")
       message (STATUS "Failed to find NetCDF interface for ${lang}")
-    endif ()
-  endif ()
-endmacro ()
+    endif (NETCDF_INCLUDES_${lang} AND NETCDF_LIBRARIES_${lang})
+  endif (NETCDF_${lang})
+endmacro (NetCDF_check_interface)
 
 NetCDF_check_interface (CXX netcdfcpp.h netcdf_c++)
 NetCDF_check_interface (F77 netcdf.inc  netcdff)
