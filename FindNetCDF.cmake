@@ -1,30 +1,3 @@
-# From https://github.com/jedbrown/cmake-modules
-#
-# Copyright $(git shortlog -s)
-# All rights reserved.
-#
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted provided that the following conditions are met:
-#
-# * Redistributions of source code must retain the above copyright notice, this
-#   list of conditions and the following disclaimer.
-#
-# * Redistributions in binary form must reproduce the above copyright notice, this
-#   list of conditions and the following disclaimer in the documentation and/or
-#   other materials provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-#
-#
 # - Find NetCDF
 # Find the native NetCDF includes and library
 #
@@ -55,7 +28,7 @@
 if (NETCDF_INCLUDES AND NETCDF_LIBRARIES)
   # Already in cache, be silent
   set (NETCDF_FIND_QUIETLY TRUE)
-endif (NETCDF_INCLUDES AND NETCDF_LIBRARIES)
+endif ()
 
 find_path (NETCDF_INCLUDES netcdf.h
   HINTS NETCDF_DIR ENV NETCDF_DIR)
@@ -77,12 +50,12 @@ macro (NetCDF_check_interface lang header libs)
     mark_as_advanced (NETCDF_INCLUDES_${lang} NETCDF_LIBRARIES_${lang})
     if (NETCDF_INCLUDES_${lang} AND NETCDF_LIBRARIES_${lang})
       list (INSERT NetCDF_libs 0 ${NETCDF_LIBRARIES_${lang}}) # prepend so that -lnetcdf is last
-    else (NETCDF_INCLUDES_${lang} AND NETCDF_LIBRARIES_${lang})
+    else ()
       set (NetCDF_has_interfaces "NO")
       message (STATUS "Failed to find NetCDF interface for ${lang}")
-    endif (NETCDF_INCLUDES_${lang} AND NETCDF_LIBRARIES_${lang})
-  endif (NETCDF_${lang})
-endmacro (NetCDF_check_interface)
+    endif ()
+  endif ()
+endmacro ()
 
 NetCDF_check_interface (CXX netcdfcpp.h netcdf_c++)
 NetCDF_check_interface (F77 netcdf.inc  netcdff)

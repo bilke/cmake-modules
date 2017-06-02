@@ -16,18 +16,18 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 if(MSVC)
-	string(TOUPPER "${CMAKE_CONFIGURATION_TYPES}" _conftypesUC)
-	include(ListCombinations)
-	list_combinations(_varnames
-		PREFIXES
-		CMAKE_C_FLAGS_
-		CMAKE_CXX_FLAGS_
-		SUFFIXES
-		${_conftypesUC})
-	foreach(_var ${_varnames})
-		string(REPLACE "/MDd" "/MTd" ${_var} "${${_var}}")
-		string(REPLACE "/MD" "/MT" ${_var} "${${_var}}")
-	endforeach()
+    string(TOUPPER "${CMAKE_CONFIGURATION_TYPES}" _conftypesUC)
+    include(ListCombinations)
+    list_combinations(_varnames
+        PREFIXES
+        CMAKE_C_FLAGS_
+        CMAKE_CXX_FLAGS_
+        SUFFIXES
+        ${_conftypesUC})
+    foreach(_var ${_varnames})
+        string(REPLACE "/MDd" "/MTd" ${_var} "${${_var}}")
+        string(REPLACE "/MD" "/MT" ${_var} "${${_var}}")
+    endforeach()
 endif()
 
 set(Boost_USE_STATIC_LIBS ON)

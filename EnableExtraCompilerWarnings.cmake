@@ -16,63 +16,63 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 if(__enable_extra_compiler_warnings)
-	return()
+    return()
 endif()
 set(__enable_extra_compiler_warnings YES)
 
 macro(_enable_extra_compiler_warnings_flags)
-	set(_flags)
-	if(MSVC)
-		option(COMPILER_WARNINGS_EXTREME
-			"Use compiler warnings that are probably overkill."
-			off)
-		mark_as_advanced(COMPILER_WARNINGS_EXTREME)
-		set(_flags "/W4")
-		if(COMPILER_WARNINGS_EXTREME)
-			set(_flags "${_flags} /Wall /wd4619 /wd4668 /wd4820 /wd4571 /wd4710")
-		endif()
-	else()
-		include(CheckCXXCompilerFlag)
-		set(_flags)
+    set(_flags)
+    if(MSVC)
+        option(COMPILER_WARNINGS_EXTREME
+            "Use compiler warnings that are probably overkill."
+            off)
+        mark_as_advanced(COMPILER_WARNINGS_EXTREME)
+        set(_flags "/W4")
+        if(COMPILER_WARNINGS_EXTREME)
+            set(_flags "${_flags} /Wall /wd4619 /wd4668 /wd4820 /wd4571 /wd4710")
+        endif()
+    else()
+        include(CheckCXXCompilerFlag)
+        set(_flags)
 
-		check_cxx_compiler_flag(-W SUPPORTS_W_FLAG)
-		if(SUPPORTS_W_FLAG)
-			set(_flags "${_flags} -W")
-		endif()
+        check_cxx_compiler_flag(-W SUPPORTS_W_FLAG)
+        if(SUPPORTS_W_FLAG)
+            set(_flags "${_flags} -W")
+        endif()
 
-		check_cxx_compiler_flag(-Wall SUPPORTS_WALL_FLAG)
-		if(SUPPORTS_WALL_FLAG)
-			set(_flags "${_flags} -Wall")
-		endif()
+        check_cxx_compiler_flag(-Wall SUPPORTS_WALL_FLAG)
+        if(SUPPORTS_WALL_FLAG)
+            set(_flags "${_flags} -Wall")
+        endif()
 
-		check_cxx_compiler_flag(-Wextra SUPPORTS_WEXTRA_FLAG)
-		if(SUPPORTS_WEXTRA_FLAG)
-			set(_flags "${_flags} -Wextra")
-		endif()
-	endif()
+        check_cxx_compiler_flag(-Wextra SUPPORTS_WEXTRA_FLAG)
+        if(SUPPORTS_WEXTRA_FLAG)
+            set(_flags "${_flags} -Wextra")
+        endif()
+    endif()
 endmacro()
 
 function(enable_extra_compiler_warnings _target)
-	_enable_extra_compiler_warnings_flags()
-	get_target_property(_origflags ${_target} COMPILE_FLAGS)
-	if(_origflags)
-		set_property(TARGET
-			${_target}
-			PROPERTY
-			COMPILE_FLAGS
-			"${_flags} ${_origflags}")
-	else()
-		set_property(TARGET
-			${_target}
-			PROPERTY
-			COMPILE_FLAGS
-			"${_flags}")
-	endif()
+    _enable_extra_compiler_warnings_flags()
+    get_target_property(_origflags ${_target} COMPILE_FLAGS)
+    if(_origflags)
+        set_property(TARGET
+            ${_target}
+            PROPERTY
+            COMPILE_FLAGS
+            "${_flags} ${_origflags}")
+    else()
+        set_property(TARGET
+            ${_target}
+            PROPERTY
+            COMPILE_FLAGS
+            "${_flags}")
+    endif()
 
 endfunction()
 
 function(globally_enable_extra_compiler_warnings)
-	_enable_extra_compiler_warnings_flags()
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_flags}" PARENT_SCOPE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${_flags}" PARENT_SCOPE)
+    _enable_extra_compiler_warnings_flags()
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${_flags}" PARENT_SCOPE)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${_flags}" PARENT_SCOPE)
 endfunction()

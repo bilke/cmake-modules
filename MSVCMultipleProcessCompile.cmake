@@ -16,16 +16,16 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 if(MSVC AND NOT "${MSVC_VERSION}" LESS 1400)
-	# Only available in VS 2005 and newer
-	string(TOUPPER "${CMAKE_CONFIGURATION_TYPES}" _conftypesUC)
-	include(ListCombinations)
-	list_combinations(_varnames
-		PREFIXES
-		CMAKE_C_FLAGS_
-		CMAKE_CXX_FLAGS_
-		SUFFIXES
-		${_conftypesUC})
-	foreach(_var ${_varnames})
-		set(${_var} "${${_var}} /MP")
-	endforeach()
+    # Only available in VS 2005 and newer
+    string(TOUPPER "${CMAKE_CONFIGURATION_TYPES}" _conftypesUC)
+    include(ListCombinations)
+    list_combinations(_varnames
+        PREFIXES
+        CMAKE_C_FLAGS_
+        CMAKE_CXX_FLAGS_
+        SUFFIXES
+        ${_conftypesUC})
+    foreach(_var ${_varnames})
+        set(${_var} "${${_var}} /MP")
+    endforeach()
 endif()

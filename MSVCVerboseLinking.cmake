@@ -19,30 +19,30 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 
 if(MSVC)
-	if(NOT DEFINED MSVC_LINK_REALLY_VERBOSE)
-		if(IN_DASHBOARD_SCRIPT)
-			set(MSVC_LINK_REALLY_VERBOSE TRUE)
-		else()
-			set(MSVC_LINK_REALLY_VERBOSE FALSE)
-		endif()
-	endif()
-	set(MSVC_LINK_REALLY_VERBOSE
-		"${MSVC_LINK_REALLY_VERBOSE}"
-		CACHE
-		BOOL
-		"Provide maximum linker messages?")
-	mark_as_advanced(MSVC_LINK_REALLY_VERBOSE)
+    if(NOT DEFINED MSVC_LINK_REALLY_VERBOSE)
+        if(IN_DASHBOARD_SCRIPT)
+            set(MSVC_LINK_REALLY_VERBOSE TRUE)
+        else()
+            set(MSVC_LINK_REALLY_VERBOSE FALSE)
+        endif()
+    endif()
+    set(MSVC_LINK_REALLY_VERBOSE
+        "${MSVC_LINK_REALLY_VERBOSE}"
+        CACHE
+        BOOL
+        "Provide maximum linker messages?")
+    mark_as_advanced(MSVC_LINK_REALLY_VERBOSE)
 
-	if(MSVC_LINK_REALLY_VERBOSE)
-		set(_verbose_flag "/VERBOSE")
-	else()
-		set(_verbose_flag "/VERBOSE:LIB")
-	endif()
+    if(MSVC_LINK_REALLY_VERBOSE)
+        set(_verbose_flag "/VERBOSE")
+    else()
+        set(_verbose_flag "/VERBOSE:LIB")
+    endif()
 
-	set(CMAKE_EXE_LINKER_FLAGS
-		"${CMAKE_EXE_LINKER_FLAGS} ${_verbose_flag}")
-	set(CMAKE_MODULE_LINKER_FLAGS
-		"${CMAKE_MODULE_LINKER_FLAGS} ${_verbose_flag}")
-	set(CMAKE_SHARED_LINKER_FLAGS
-		"${CMAKE_SHARED_LINKER_FLAGS} ${_verbose_flag}")
+    set(CMAKE_EXE_LINKER_FLAGS
+        "${CMAKE_EXE_LINKER_FLAGS} ${_verbose_flag}")
+    set(CMAKE_MODULE_LINKER_FLAGS
+        "${CMAKE_MODULE_LINKER_FLAGS} ${_verbose_flag}")
+    set(CMAKE_SHARED_LINKER_FLAGS
+        "${CMAKE_SHARED_LINKER_FLAGS} ${_verbose_flag}")
 endif()
