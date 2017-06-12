@@ -57,16 +57,8 @@
 #    Example:
 #      set(COVERAGE_EXCLUDES 'dir1/*' 'dir2/*')
 #
-# 5. Use the function SETUP_TARGET_FOR_COVERAGE to create a custom make target
-#    which runs your test executable and produces a lcov code coverage report:
-#    Example:
-#      SETUP_TARGET_FOR_COVERAGE(
-#          my_coverage_target  # Name for custom target.
-#          test_driver         # Name of the test driver executable that runs the tests.
-#                              # NOTE! This should always have a ZERO as exit code
-#                              # otherwise the coverage generation will not complete.
-#          coverage            # Name of output directory.
-#      )
+# 5. Use the functions described below to create a custom make target which
+#    runs your test executable and produces a code coverage report.
 #
 # 6. Build a Debug build:
 #      cmake -DCMAKE_BUILD_TYPE=Debug ..
