@@ -116,7 +116,7 @@ if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(WARNING "Code coverage results with an optimised (non-Debug) build may be misleading")
 endif() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
 
-if(CMAKE_COMPILER_IS_GNUCXX)
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
     link_libraries(gcov)
 else()
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
