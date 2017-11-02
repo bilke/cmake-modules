@@ -82,7 +82,7 @@ if (GCOV_PATH
     AND SIMPLE_PYTHON_EXECUTABLE)
   set(COVERAGE_TOOLS_FOUND YES)  
 else()
-  set(COVERAGE_TOOLS_NOTFOUND ON)
+  set(COVERAGE_TOOLS_NOTFOUND YES)
   if(NOT GCOV_PATH)
     message(STATUS "gcov not found!")
   endif()
@@ -177,24 +177,22 @@ if (COVERAGE_TOOLS_FOUND AND COVERAGE_SUPPORTED_COMPILER)
     
     # Setup target
     add_custom_target(${Coverage_NAME}
-      
-      # Cleanup lcov
-      COMMAND ${LCOV_PATH} --directory . --zerocounters
-      
-      # Run tests
-      COMMAND ${Coverage_EXECUTABLE}
-      
-      # Capturing lcov counters and generating report
-      COMMAND ${LCOV_PATH} --directory . --capture --output-file ${Coverage_NAME}.info
-      COMMAND ${LCOV_PATH} --remove ${Coverage_NAME}.info ${COVERAGE_EXCLUDES} --output-file ${CMAKE_BINARY_DIR}/${Coverage_NAME}.info.cleaned
-      COMMAND ${GENHTML_PATH} -o ${Coverage_NAME} ${CMAKE_BINARY_DIR}/${Coverage_NAME}.info.cleaned
-      COMMAND ${CMAKE_COMMAND} -E remove ${Coverage_NAME}.info ${CMAKE_BINARY_DIR}/${Coverage_NAME}.info.cleaned
-      
-      WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-      DEPENDS ${Coverage_DEPENDENCIES}
-      COMMENT "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
-      )
-    
+        # Cleanup lcov
+        COMMAND ${LCOV_PATH} --directory . --zerocounters
+
+        # Run tests
+        COMMAND ${Coverage_EXECUTABLE}
+
+        # Capturing lcov counters and generating report
+        COMMAND ${LCOV_PATH} --directory . --capture --output-file ${Coverage_NAME}.info
+        COMMAND ${LCOV_PATH} --remove ${Coverage_NAME}.info ${COVERAGE_EXCLUDES} --output-file ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info.cleaned
+        COMMAND ${GENHTML_PATH} -o ${Coverage_NAME} ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info.cleaned
+        COMMAND ${CMAKE_COMMAND} -E remove ${Coverage_NAME}.info ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info.cleaned
+
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+        DEPENDS ${Coverage_DEPENDENCIES}
+        COMMENT "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
+    )
     # Show info where to find the report
     add_custom_command(TARGET ${Coverage_NAME} POST_BUILD
       COMMAND ;
