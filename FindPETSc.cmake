@@ -31,7 +31,7 @@ endif()
 # look for PETSc BLAS library
 find_library(PETSC_BLAS_LIBRARY
     NAMES blas f2cblas
-    PATHS ${PETSC_ROOT} ${PETSC_DIR}
+    PATHS ${PETSC_ROOT} ${PETSC_DIR} ENV PETSC_ROOT ENV PETSC_DIR
     PATH_SUFFIXES lib lib${_BITS} lib/${CMAKE_LIBRARY_ARCHITECTURE}
     ${_no_default_path}
 )
@@ -50,7 +50,7 @@ endif()
 # look for PETSc LAPACK library
 find_library(PETSC_LAPACK_LIBRARY
     NAMES lapack f2clapack
-    PATHS ${PETSC_ROOT} ${PETSC_DIR}
+    PATHS ${PETSC_ROOT} ${PETSC_DIR} ENV PETSC_ROOT ENV PETSC_DIR
     PATH_SUFFIXES lib lib${_BITS} lib/${CMAKE_LIBRARY_ARCHITECTURE}
     ${_no_default_path}
 )
