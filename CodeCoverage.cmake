@@ -156,7 +156,7 @@ function(SETUP_TARGET_FOR_COVERAGE_LCOV)
         COMMAND ${LCOV_PATH} --gcov-tool ${GCOV_PATH} -c -i -d . -o ${Coverage_NAME}.base
 
         # Run tests
-        COMMAND ${Coverage_EXECUTABLE}
+        COMMAND ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
 
         # Capturing lcov counters and generating report
         COMMAND ${LCOV_PATH} --gcov-tool ${GCOV_PATH} --directory . --capture --output-file ${Coverage_NAME}.info
@@ -219,7 +219,7 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_XML)
 
     add_custom_target(${Coverage_NAME}
         # Run tests
-        ${Coverage_EXECUTABLE}
+        ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
 
         # Running gcovr
         COMMAND ${GCOVR_PATH} --xml
@@ -273,7 +273,7 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_HTML)
 
     add_custom_target(${Coverage_NAME}
         # Run tests
-        ${Coverage_EXECUTABLE}
+        ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
 
         # Create folder
         COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/${Coverage_NAME}
