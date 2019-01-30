@@ -52,6 +52,8 @@
 # 3. Append necessary compiler flags:
 #      APPEND_COVERAGE_COMPILER_FLAGS()
 #
+# 3.a (OPTIONAL) Set appropriate optimization flags, e.g. -O0, -O1 or -Og
+#
 # 4. If you need to exclude additional directories from the report, specify them
 #    using the COVERAGE_LCOV_EXCLUDES variable before calling SETUP_TARGET_FOR_COVERAGE_LCOV.
 #    Example:
@@ -87,7 +89,7 @@ elseif(NOT CMAKE_COMPILER_IS_GNUCXX)
     message(FATAL_ERROR "Compiler is not GNU gcc! Aborting...")
 endif()
 
-set(COVERAGE_COMPILER_FLAGS "-g -O0 --coverage -fprofile-arcs -ftest-coverage"
+set(COVERAGE_COMPILER_FLAGS "-g --coverage -fprofile-arcs -ftest-coverage"
     CACHE INTERNAL "")
 
 set(CMAKE_CXX_FLAGS_COVERAGE
