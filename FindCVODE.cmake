@@ -15,9 +15,9 @@ if(NOT "$ENV{CVODE_ROOT}" STREQUAL "" OR NOT "${CVODE_ROOT}" STREQUAL "")
     list(APPEND CMAKE_LIBRARY_PATH "$ENV{CVODE_ROOT}" "${CVODE_ROOT}")
 endif()
 
-find_path(CVODE_INCLUDE_DIRS sundials_types.h
+find_path(CVODE_INCLUDE_DIRS sundials/sundials_types.h
     ENV CVODE_ROOT
-    PATH_SUFFIXES include include/sundials
+    PATH_SUFFIXES include
 )
 
 find_library(CVODE_LIBRARY
