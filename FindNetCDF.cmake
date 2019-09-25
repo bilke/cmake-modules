@@ -14,7 +14,7 @@ find_library(NETCDF_LIBRARIES_C NAMES netcdf
 # CXX
 find_path(NETCDF_INCLUDES_CXX NAMES netcdf
     HINTS ${NETCDF_CXX_ROOT} PATH_SUFFIXES include)
-find_library(NETCDF_LIBRARIES_CXX NAMES netcdf-cxx4
+find_library(NETCDF_LIBRARIES_CXX NAMES netcdf_c++4 netcdf-cxx4
     HINTS ${NETCDF_CXX_ROOT} PATH_SUFFIXES lib)
 
 include (FindPackageHandleStandardArgs)
