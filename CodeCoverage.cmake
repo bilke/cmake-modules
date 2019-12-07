@@ -77,7 +77,6 @@ find_program( GCOV_PATH gcov )
 find_program( LCOV_PATH  NAMES lcov lcov.bat lcov.exe lcov.perl)
 find_program( GENHTML_PATH NAMES genhtml genhtml.perl genhtml.bat )
 find_program( GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/scripts/test)
-find_package(Python COMPONENTS Interpreter)
 
 if(NOT GCOV_PATH)
     message(FATAL_ERROR "gcov not found! Aborting...")
@@ -204,10 +203,6 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_XML)
     set(multiValueArgs EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    if(NOT Python_FOUND)
-        message(FATAL_ERROR "python not found! Aborting...")
-    endif()
-
     if(NOT GCOVR_PATH)
         message(FATAL_ERROR "gcovr not found! Aborting...")
     endif() # NOT GCOVR_PATH
@@ -259,10 +254,6 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_HTML)
     set(multiValueArgs EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    if(NOT Python_FOUND)
-        message(FATAL_ERROR "python not found! Aborting...")
-    endif()
-
     if(NOT GCOVR_PATH)
         message(FATAL_ERROR "gcovr not found! Aborting...")
     endif() # NOT GCOVR_PATH
@@ -283,7 +274,7 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_HTML)
         COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/${Coverage_NAME}
 
         # Running gcovr
-        COMMAND ${Python_EXECUTABLE} ${GCOVR_PATH} --html --html-details
+        COMMAND ${GCOVR_PATH} --html --html-details
             -r ${PROJECT_SOURCE_DIR} ${GCOVR_EXCLUDES}
             --object-directory=${PROJECT_BINARY_DIR}
             -o ${Coverage_NAME}/index.html
