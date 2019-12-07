@@ -173,6 +173,7 @@ function(SETUP_TARGET_FOR_COVERAGE_LCOV)
         COMMAND ${GENHTML_PATH} ${GENHTML_ARGS} ${Coverage_GENHTML_ARGS} -o ${Coverage_NAME} ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info.cleaned
 
         COMMAND ${CMAKE_COMMAND} -E remove ${Coverage_NAME}.base ${Coverage_NAME}.total ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info.cleaned
+        BYPRODUCTS ${Coverage_NAME}.info
 
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
@@ -190,6 +191,11 @@ function(SETUP_TARGET_FOR_COVERAGE_LCOV)
         COMMAND ;
         COMMENT "Open ./${Coverage_NAME}/index.html in your browser to view the coverage report."
     )
+
+    # Clean up output on 'make clean'
+    set_property(DIRECTORY APPEND PROPERTY
+        ADDITIONAL_MAKE_CLEAN_FILES
+        ${Coverage_NAME})
 
 endfunction() # SETUP_TARGET_FOR_COVERAGE_LCOV
 
@@ -241,6 +247,11 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_XML)
         COMMAND ;
         COMMENT "Cobertura code coverage report saved in ${Coverage_NAME}.xml."
     )
+
+    # Clean up output on 'make clean'
+    set_property(DIRECTORY APPEND PROPERTY
+        ADDITIONAL_MAKE_CLEAN_FILES
+        ${Coverage_NAME})
 
 endfunction() # SETUP_TARGET_FOR_COVERAGE_GCOVR_XML
 
@@ -295,6 +306,11 @@ function(SETUP_TARGET_FOR_COVERAGE_GCOVR_HTML)
         COMMAND ;
         COMMENT "Open ./${Coverage_NAME}/index.html in your browser to view the coverage report."
     )
+
+    # Clean up output on 'make clean'
+    set_property(DIRECTORY APPEND PROPERTY
+        ADDITIONAL_MAKE_CLEAN_FILES
+        ${Coverage_NAME})
 
 endfunction() # SETUP_TARGET_FOR_COVERAGE_GCOVR_HTML
 
