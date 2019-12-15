@@ -143,11 +143,13 @@ endif()
 #     NAME testrunner_coverage                    # New target name
 #     EXECUTABLE testrunner -j ${PROCESSOR_COUNT} # Executable in PROJECT_BINARY_DIR
 #     DEPENDENCIES testrunner                     # Dependencies to build first
+#     BASE_DIRECTORY "../"                        # Base directory for report
+#                                                 #  (defaults to PROJECT_SOURCE_DIR)
 # )
 function(setup_target_for_coverage_lcov)
 
     set(options NONE)
-    set(oneValueArgs NAME)
+    set(oneValueArgs BASE_DIRECTORY NAME)
     set(multiValueArgs EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES LCOV_ARGS GENHTML_ARGS)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -159,6 +161,12 @@ function(setup_target_for_coverage_lcov)
         message(FATAL_ERROR "genhtml not found! Aborting...")
     endif() # NOT GENHTML_PATH
 
+    # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
+    if(${Coverage_BASE_DIRECTORY})
+        get_filename_component(BASEDIR ${Coverage_BASE_DIRECTORY} ABSOLUTE)
+    else()
+        set(BASEDIR ${PROJECT_SOURCE_DIR})
+    endif()
     # Conditional arguments
     if(CPPFILT_PATH)
       set(GENHTML_EXTRA_ARGS "--demangle-cpp")
@@ -168,15 +176,15 @@ function(setup_target_for_coverage_lcov)
     add_custom_target(${Coverage_NAME}
 
         # Cleanup lcov
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -directory . -b ${PROJECT_SOURCE_DIR} --zerocounters
+        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -directory . -b ${BASEDIR} --zerocounters
         # Create baseline to make sure untouched files show up in the report
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d . -b ${PROJECT_SOURCE_DIR} -o ${Coverage_NAME}.base
+        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d . -b ${BASEDIR} -o ${Coverage_NAME}.base
 
         # Run tests
         COMMAND ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
 
         # Capturing lcov counters and generating report
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b ${PROJECT_SOURCE_DIR} --capture --output-file ${Coverage_NAME}.info
+        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b ${BASEDIR} --capture --output-file ${Coverage_NAME}.info
         # add baseline counters
         COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -a ${Coverage_NAME}.base -a ${Coverage_NAME}.info --output-file ${Coverage_NAME}.total
         COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --remove ${Coverage_NAME}.total ${COVERAGE_LCOV_EXCLUDES} --output-file ${PROJECT_BINARY_DIR}/${Coverage_NAME}.info.cleaned
@@ -224,7 +232,7 @@ endfunction() # setup_target_for_coverage_lcov
 function(setup_target_for_coverage_gcovr_xml)
 
     set(options NONE)
-    set(oneValueArgs NAME)
+    set(oneValueArgs BASE_DIRECTORY NAME)
     set(multiValueArgs EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -233,6 +241,13 @@ function(setup_target_for_coverage_gcovr_xml)
     endif() # NOT GCOVR_PATH
 
     # Combine excludes to several -e arguments
+    # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
+    if(${Coverage_BASE_DIRECTORY})
+        get_filename_component(BASEDIR ${Coverage_BASE_DIRECTORY} ABSOLUTE)
+    else()
+        set(BASEDIR ${PROJECT_SOURCE_DIR})
+    endif()
+
     set(GCOVR_EXCLUDES "")
     foreach(EXCLUDE ${COVERAGE_GCOVR_EXCLUDES})
         string(REPLACE "*" "\\*" EXCLUDE_REPLACED ${EXCLUDE})
@@ -246,7 +261,7 @@ function(setup_target_for_coverage_gcovr_xml)
 
         # Running gcovr
         COMMAND ${GCOVR_PATH} --xml
-            -r ${PROJECT_SOURCE_DIR} ${GCOVR_EXCLUDES}
+            -r ${BASEDIR} ${GCOVR_EXCLUDES}
             --object-directory=${PROJECT_BINARY_DIR}
             -o ${Coverage_NAME}.xml
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
@@ -276,11 +291,13 @@ endfunction() # setup_target_for_coverage_gcovr_xml
 #     NAME ctest_coverage                    # New target name
 #     EXECUTABLE ctest -j ${PROCESSOR_COUNT} # Executable in PROJECT_BINARY_DIR
 #     DEPENDENCIES executable_target         # Dependencies to build first
+#     BASE_DIRECTORY "../"                   # Base directory for report
+#                                            #  (defaults to PROJECT_SOURCE_DIR)
 # )
 function(setup_target_for_coverage_gcovr_html)
 
     set(options NONE)
-    set(oneValueArgs NAME)
+    set(oneValueArgs BASE_DIRECTORY NAME)
     set(multiValueArgs EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -289,6 +306,13 @@ function(setup_target_for_coverage_gcovr_html)
     endif() # NOT GCOVR_PATH
 
     # Combine excludes to several -e arguments
+    # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
+    if(${Coverage_BASE_DIRECTORY})
+        get_filename_component(BASEDIR ${Coverage_BASE_DIRECTORY} ABSOLUTE)
+    else()
+        set(BASEDIR ${PROJECT_SOURCE_DIR})
+    endif()
+
     set(GCOVR_EXCLUDES "")
     foreach(EXCLUDE ${COVERAGE_GCOVR_EXCLUDES})
         string(REPLACE "*" "\\*" EXCLUDE_REPLACED ${EXCLUDE})
@@ -305,7 +329,7 @@ function(setup_target_for_coverage_gcovr_html)
 
         # Running gcovr
         COMMAND ${GCOVR_PATH} --html --html-details
-            -r ${PROJECT_SOURCE_DIR} ${GCOVR_EXCLUDES}
+            -r ${BASEDIR} ${GCOVR_EXCLUDES}
             --object-directory=${PROJECT_BINARY_DIR}
             -o ${Coverage_NAME}/index.html
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
