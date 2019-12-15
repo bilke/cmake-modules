@@ -145,10 +145,12 @@ endif()
 #     DEPENDENCIES testrunner                     # Dependencies to build first
 #     BASE_DIRECTORY "../"                        # Base directory for report
 #                                                 #  (defaults to PROJECT_SOURCE_DIR)
+#     NO_DEMANGLE                                 # Don't demangle C++ symbols
+#                                                 #  even if c++filt is found
 # )
 function(setup_target_for_coverage_lcov)
 
-    set(options NONE)
+    set(options NO_DEMANGLE)
     set(oneValueArgs BASE_DIRECTORY NAME)
     set(multiValueArgs EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES LCOV_ARGS GENHTML_ARGS)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -168,7 +170,7 @@ function(setup_target_for_coverage_lcov)
         set(BASEDIR ${PROJECT_SOURCE_DIR})
     endif()
     # Conditional arguments
-    if(CPPFILT_PATH)
+    if(CPPFILT_PATH AND NOT ${Coverage_NO_DEMANGLE})
       set(GENHTML_EXTRA_ARGS "--demangle-cpp")
     endif()
 
