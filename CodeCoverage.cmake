@@ -168,12 +168,8 @@ if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     message(WARNING "Code coverage results with an optimised (non-Debug) build may be misleading")
 endif() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
 
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     link_libraries(gcov)
-else()
-    if(CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-        link_libraries(gcov)
-    endif()
 endif()
 
 # Defines a target for running and collection code coverage information
