@@ -216,7 +216,7 @@ function(setup_target_for_coverage_lcov)
         if(CMAKE_VERSION VERSION_GREATER 3.4)
             get_filename_component(EXCLUDE ${EXCLUDE} ABSOLUTE BASE_DIR ${BASEDIR})
         endif()
-        list(APPEND LCOV_EXCLUDES "${EXCLUDE}")
+        list(APPEND LCOV_EXCLUDES '${EXCLUDE}')
     endforeach()
     list(REMOVE_DUPLICATES LCOV_EXCLUDES)
 
