@@ -256,6 +256,7 @@ function(setup_target_for_coverage_lcov)
 
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
+        VERBATIM # Protect arguments to commands
         COMMENT "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
     )
 
@@ -335,6 +336,7 @@ function(setup_target_for_coverage_gcovr_xml)
         BYPRODUCTS ${Coverage_NAME}.xml
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
+        VERBATIM # Protect arguments to commands
         COMMENT "Running gcovr to produce Cobertura code coverage report."
     )
 
@@ -411,6 +413,7 @@ function(setup_target_for_coverage_gcovr_html)
         BYPRODUCTS ${PROJECT_BINARY_DIR}/${Coverage_NAME}  # report directory
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
+        VERBATIM # Protect arguments to commands
         COMMENT "Running gcovr to produce HTML code coverage report."
     )
 
