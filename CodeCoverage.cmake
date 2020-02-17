@@ -62,6 +62,10 @@
 # 2020-01-19, Bob Apthorpe
 # - Added gfortran support
 #
+# 2020-02-17, FeRD (Frank Dana)
+# - Make all add_custom_target()s VERBATIM to auto-escape wildcard characters
+#   in EXCLUDEs, and remove manual escaping from gcovr targets
+#
 # USAGE:
 #
 # 1. Copy this file into your cmake modules path.
@@ -256,6 +260,7 @@ function(setup_target_for_coverage_lcov)
 
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
+        VERBATIM # Protect arguments to commands
         COMMENT "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
     )
 
@@ -318,9 +323,8 @@ function(setup_target_for_coverage_gcovr_xml)
     # Combine excludes to several -e arguments
     set(GCOVR_EXCLUDE_ARGS "")
     foreach(EXCLUDE ${GCOVR_EXCLUDES})
-        string(REPLACE "*" "\\*" EXCLUDE_REPLACED ${EXCLUDE})
         list(APPEND GCOVR_EXCLUDE_ARGS "-e")
-        list(APPEND GCOVR_EXCLUDE_ARGS "${EXCLUDE_REPLACED}")
+        list(APPEND GCOVR_EXCLUDE_ARGS "${EXCLUDE}")
     endforeach()
 
     add_custom_target(${Coverage_NAME}
@@ -335,6 +339,7 @@ function(setup_target_for_coverage_gcovr_xml)
         BYPRODUCTS ${Coverage_NAME}.xml
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
+        VERBATIM # Protect arguments to commands
         COMMENT "Running gcovr to produce Cobertura code coverage report."
     )
 
@@ -390,9 +395,8 @@ function(setup_target_for_coverage_gcovr_html)
     # Combine excludes to several -e arguments
     set(GCOVR_EXCLUDE_ARGS "")
     foreach(EXCLUDE ${GCOVR_EXCLUDES})
-        string(REPLACE "*" "\\*" EXCLUDE_REPLACED ${EXCLUDE})
         list(APPEND GCOVR_EXCLUDE_ARGS "-e")
-        list(APPEND GCOVR_EXCLUDE_ARGS "${EXCLUDE_REPLACED}")
+        list(APPEND GCOVR_EXCLUDE_ARGS "${EXCLUDE}")
     endforeach()
 
     add_custom_target(${Coverage_NAME}
@@ -411,6 +415,7 @@ function(setup_target_for_coverage_gcovr_html)
         BYPRODUCTS ${PROJECT_BINARY_DIR}/${Coverage_NAME}  # report directory
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
+        VERBATIM # Protect arguments to commands
         COMMENT "Running gcovr to produce HTML code coverage report."
     )
 
