@@ -43,11 +43,6 @@ of your root CMakeLists.txt file (but not before your project() call):
 
 	list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
-You might also want the extra automatic features/fixes included with the
-modules, for that, just add another line following the first one:
-
-	include(UseBackportedModules)
-
 
 Licenses
 --------
