@@ -116,6 +116,7 @@ include(CMakeParseArguments)
 # Check prereqs
 find_program( GCOV_PATH gcov )
 find_program( LCOV_PATH  NAMES lcov lcov.bat lcov.exe lcov.perl)
+find_program( FASTCOV_PATH NAMES fastcov fastcov.py )
 find_program( GENHTML_PATH NAMES genhtml genhtml.perl genhtml.bat )
 find_program( GCOVR_PATH gcovr PATHS ${CMAKE_SOURCE_DIR}/scripts/test)
 find_program( CPPFILT_PATH NAMES c++filt )
@@ -426,6 +427,95 @@ function(setup_target_for_coverage_gcovr_html)
     )
 
 endfunction() # setup_target_for_coverage_gcovr_html
+
+# Defines a target for running and collection code coverage information
+# Builds dependencies, runs the given executable and outputs reports.
+# NOTE! The executable should always have a ZERO as exit code otherwise
+# the coverage generation will not complete.
+#
+# setup_target_for_coverage_fastcov(
+#     NAME testrunner_coverage                    # New target name
+#     EXECUTABLE testrunner -j ${PROCESSOR_COUNT} # Executable in PROJECT_BINARY_DIR
+#     DEPENDENCIES testrunner                     # Dependencies to build first
+#     BASE_DIRECTORY "../"                        # Base directory for report
+#                                                 #  (defaults to PROJECT_SOURCE_DIR)
+#     EXCLUDE "src/dir1/" "src/dir2/"             # Patterns to exclude.
+#     NO_DEMANGLE                                 # Don't demangle C++ symbols
+#                                                 #  even if c++filt is found
+# )
+function(setup_target_for_coverage_fastcov)
+
+    set(options NO_DEMANGLE)
+    set(oneValueArgs BASE_DIRECTORY NAME)
+    set(multiValueArgs EXCLUDE EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES FASTCOV_ARGS GENHTML_ARGS)
+    cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    if(NOT FASTCOV_PATH)
+        message(FATAL_ERROR "fastcov not found! Aborting...")
+    endif() # NOT FASTCOV_PATH
+
+    if(NOT GENHTML_PATH)
+        message(FATAL_ERROR "genhtml not found! Aborting...")
+    endif() # NOT GENHTML_PATH
+
+    # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
+    if(${Coverage_BASE_DIRECTORY})
+        get_filename_component(BASEDIR ${Coverage_BASE_DIRECTORY} ABSOLUTE)
+    else()
+        set(BASEDIR ${PROJECT_SOURCE_DIR})
+    endif()
+
+    # Collect excludes (Patterns, not paths, for fastcov)
+    set(FASTCOV_EXCLUDES "")
+    foreach(EXCLUDE ${Coverage_EXCLUDE} ${COVERAGE_EXCLUDES} ${COVERAGE_FASTCOV_EXCLUDES})
+        list(APPEND FASTCOV_EXCLUDES "${EXCLUDE}")
+    endforeach()
+    list(REMOVE_DUPLICATES FASTCOV_EXCLUDES)
+
+    # Conditional arguments
+    if(CPPFILT_PATH AND NOT ${Coverage_NO_DEMANGLE})
+      set(GENHTML_EXTRA_ARGS "--demangle-cpp")
+    endif()
+
+    # Setup target
+    add_custom_target(${Coverage_NAME}
+
+        # Cleanup fastcov
+        COMMAND ${FASTCOV_PATH} ${Coverage_FASTCOV_ARGS} --gcov ${GCOV_PATH} --search-directory . --zerocounters
+
+        # Run tests
+        COMMAND ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
+
+        # Capturing fastcov counters and generating report
+        COMMAND ${FASTCOV_PATH} ${Coverage_FASTCOV_ARGS} --gcov ${GCOV_PATH} --search-directory . --process-gcno --lcov --output ${Coverage_NAME}.info -e ${FASTCOV_EXCLUDES}
+
+        # Generate HTML output
+        COMMAND ${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} ${Coverage_GENHTML_ARGS} -o ${Coverage_NAME} ${Coverage_NAME}.info
+
+        # Set output files as GENERATED (will be removed on 'make clean')
+        BYPRODUCTS
+            ${Coverage_NAME}.info
+            ${Coverage_NAME}  # report directory
+
+        WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+        DEPENDS ${Coverage_DEPENDENCIES}
+        VERBATIM # Protect arguments to commands
+        COMMENT "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
+    )
+
+    # Show where to find the fastcov info report
+    add_custom_command(TARGET ${Coverage_NAME} POST_BUILD
+        COMMAND ;
+        COMMENT "Lcov code coverage info report saved in ${Coverage_NAME}.info."
+    )
+
+    # Show info where to find the report
+    add_custom_command(TARGET ${Coverage_NAME} POST_BUILD
+        COMMAND ;
+        COMMENT "Open ./${Coverage_NAME}/index.html in your browser to view the coverage report."
+    )
+
+endfunction() # setup_target_for_coverage_fastcov
 
 function(append_coverage_compiler_flags)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
