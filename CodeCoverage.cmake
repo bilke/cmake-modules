@@ -506,7 +506,7 @@ function(setup_target_for_coverage_fastcov)
     # Show where to find the fastcov info report
     add_custom_command(TARGET ${Coverage_NAME} POST_BUILD
         COMMAND ;
-        COMMENT "Lcov code coverage info report saved in ${Coverage_NAME}.info."
+        COMMENT "fastcov code coverage info report saved in ${Coverage_NAME}.info."
     )
 
     # Show info where to find the report
