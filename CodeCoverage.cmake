@@ -125,8 +125,11 @@ if(NOT GCOV_PATH)
     message(FATAL_ERROR "gcov not found! Aborting...")
 endif() # NOT GCOV_PATH
 
-if("${CMAKE_CXX_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
-    if("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 3)
+get_property(LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
+list(GET LANGUAGES 0 LANG)
+
+if("${CMAKE_${LANG}_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
+    if("${CMAKE_${LANG}_COMPILER_VERSION}" VERSION_LESS 3)
         message(FATAL_ERROR "Clang version must be 3.0.0 or greater! Aborting...")
     endif()
 elseif(NOT CMAKE_COMPILER_IS_GNUCXX)
