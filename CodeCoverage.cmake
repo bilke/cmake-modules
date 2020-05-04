@@ -66,6 +66,10 @@
 # - Make all add_custom_target()s VERBATIM to auto-escape wildcard characters
 #   in EXCLUDEs, and remove manual escaping from gcovr targets
 #
+# 2020-05-04, Mihchael Davis
+#     - Add -fprofile-abs-path to make gcno files contain absolute paths
+#     - Fix BASE_DIRECTORY not working when defined
+#     - Change BYPRODUCT from folder to index.html to stop ninja from complaining about double defines
 # USAGE:
 #
 # 1. Copy this file into your cmake modules path.
@@ -139,7 +143,7 @@ elseif(NOT CMAKE_COMPILER_IS_GNUCXX)
     endif()
 endif()
 
-set(COVERAGE_COMPILER_FLAGS "-g -fprofile-arcs -ftest-coverage"
+set(COVERAGE_COMPILER_FLAGS "-g -fprofile-arcs -ftest-coverage -fprofile-abs-path"
     CACHE INTERNAL "")
 
 set(CMAKE_Fortran_FLAGS_COVERAGE
@@ -209,7 +213,7 @@ function(setup_target_for_coverage_lcov)
     endif() # NOT GENHTML_PATH
 
     # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
-    if(${Coverage_BASE_DIRECTORY})
+    if(DEFINED Coverage_BASE_DIRECTORY)
         get_filename_component(BASEDIR ${Coverage_BASE_DIRECTORY} ABSOLUTE)
     else()
         set(BASEDIR ${PROJECT_SOURCE_DIR})
@@ -257,8 +261,7 @@ function(setup_target_for_coverage_lcov)
             ${Coverage_NAME}.capture
             ${Coverage_NAME}.total
             ${Coverage_NAME}.info
-            ${Coverage_NAME}  # report directory
-
+            ${Coverage_NAME}/index.html
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
         VERBATIM # Protect arguments to commands
@@ -305,7 +308,7 @@ function(setup_target_for_coverage_gcovr_xml)
     endif() # NOT GCOVR_PATH
 
     # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
-    if(${Coverage_BASE_DIRECTORY})
+    if(DEFINED Coverage_BASE_DIRECTORY)
         get_filename_component(BASEDIR ${Coverage_BASE_DIRECTORY} ABSOLUTE)
     else()
         set(BASEDIR ${PROJECT_SOURCE_DIR})
@@ -377,7 +380,7 @@ function(setup_target_for_coverage_gcovr_html)
     endif() # NOT GCOVR_PATH
 
     # Set base directory (as absolute path), or default to PROJECT_SOURCE_DIR
-    if(${Coverage_BASE_DIRECTORY})
+    if(DEFINED Coverage_BASE_DIRECTORY)
         get_filename_component(BASEDIR ${Coverage_BASE_DIRECTORY} ABSOLUTE)
     else()
         set(BASEDIR ${PROJECT_SOURCE_DIR})
@@ -413,7 +416,7 @@ function(setup_target_for_coverage_gcovr_html)
             --object-directory=${PROJECT_BINARY_DIR}
             -o ${Coverage_NAME}/index.html
 
-        BYPRODUCTS ${PROJECT_BINARY_DIR}/${Coverage_NAME}  # report directory
+        BYPRODUCTS ${PROJECT_BINARY_DIR}/${Coverage_NAME}/index.html  # report directory
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
         VERBATIM # Protect arguments to commands
