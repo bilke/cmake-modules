@@ -445,6 +445,28 @@ function(setup_target_for_coverage_gcovr_html)
         list(APPEND GCOVR_EXCLUDE_ARGS "${EXCLUDE}")
     endforeach()
 
+    if(CODE_COVERAGE_VERBOSE)
+        message(STATUS
+            "Executed command report (lists are shown semicolon "
+            "separated here but are escaped again): "
+        )
+
+        message(STATUS "Command to run tests: ")
+        message(STATUS "${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}")
+
+        message(STATUS "Command to create folder: ")
+        message(STATUS "${CMAKE_COMMAND} -E make_directory "
+            "${PROJECT_BINARY_DIR}/${Coverage_NAME}"
+        )
+
+        message(STATUS "GCOVR command: ")
+        message(STATUS "${GCOVR_PATH} --html --html-details "
+            "-r ${BASEDIR} ${GCOVR_EXCLUDE_ARGS} "
+            "--object-directory=${PROJECT_BINARY_DIR} "
+            "-o ${Coverage_NAME}/index.html "
+        )
+    endif()
+
     add_custom_target(${Coverage_NAME}
         # Run tests
         ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
