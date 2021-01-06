@@ -231,10 +231,10 @@ function(setup_target_for_coverage_lcov)
     if(CPPFILT_PATH AND NOT ${Coverage_NO_DEMANGLE})
       set(GENHTML_EXTRA_ARGS "--demangle-cpp")
     endif()
-    
+
     if(CODE_COVERAGE_VERBOSE)
-        message(STATUS 
-            "Executed command report (lists are shown semicolon " 
+        message(STATUS
+            "Executed command report (lists are shown semicolon "
             "separated here but are escaped again): "
         )
         message(STATUS "Command to clean up LCOV: ")
