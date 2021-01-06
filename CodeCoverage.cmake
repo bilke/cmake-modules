@@ -461,7 +461,7 @@ function(setup_target_for_coverage_gcovr_html)
 
         message(STATUS "GCOVR command: ")
         message(STATUS "${GCOVR_PATH} --html --html-details "
-            "-r ${BASEDIR} ${GCOVR_EXCLUDE_ARGS} "
+            "-r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS} ${GCOVR_EXCLUDE_ARGS} "
             "--object-directory=${PROJECT_BINARY_DIR} "
             "-o ${Coverage_NAME}/index.html "
         )
@@ -476,7 +476,7 @@ function(setup_target_for_coverage_gcovr_html)
 
         # Running gcovr
         COMMAND ${GCOVR_PATH} --html --html-details
-            -r ${BASEDIR} ${GCOVR_EXCLUDE_ARGS}
+            -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS} ${GCOVR_EXCLUDE_ARGS}
             --object-directory=${PROJECT_BINARY_DIR}
             -o ${Coverage_NAME}/index.html
 
