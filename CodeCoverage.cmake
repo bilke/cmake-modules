@@ -223,17 +223,20 @@ function(setup_target_for_coverage_lcov)
         if(CMAKE_VERSION VERSION_GREATER 3.4)
             get_filename_component(EXCLUDE ${EXCLUDE} ABSOLUTE BASE_DIR ${BASEDIR})
         endif()
-        list(APPEND LCOV_EXCLUDES "'${EXCLUDE}'")
+        list(APPEND LCOV_EXCLUDES "${EXCLUDE}")
     endforeach()
     list(REMOVE_DUPLICATES LCOV_EXCLUDES)
-    string(REPLACE ";" " " LCOV_EXCLUDES "${LCOV_EXCLUDES}")
-
+    
     # Conditional arguments
     if(CPPFILT_PATH AND NOT ${Coverage_NO_DEMANGLE})
       set(GENHTML_EXTRA_ARGS "--demangle-cpp")
     endif()
     
     if(CODE_COVERAGE_VERBOSE)
+    	message(STATUS 
+    		"Executed command report (lists are shown semicolon " 
+    		"separated here but are escaped again): "
+    	)
     	message(STATUS "Command to clean up LCOV: ")
     	message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} "
     		"--gcov-tool ${GCOV_PATH} -directory . -b ${BASEDIR} "
@@ -255,15 +258,15 @@ function(setup_target_for_coverage_lcov)
     	)
     	
     	message(STATUS "Command to add baseline counters: ")
-    	message(STATUS "${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -a  "
-    		"${Coverage_NAME}.base -a ${Coverage_NAME}.capture --output-file "
-    		"${Coverage_NAME}.total"
+    	message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
+    		"${GCOV_PATH} -a ${Coverage_NAME}.base -a ${Coverage_NAME}.capture "
+    		"--output-file ${Coverage_NAME}.total"
     	)
-    	
+
     	message(STATUS "Command to filter collected data: ")
-    	message(STATUS "${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} "
-    		"--remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} --output-file "
-    		"${Coverage_NAME}.info"
+    	message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
+    		"${GCOV_PATH} --remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} "
+    		"--output-file ${Coverage_NAME}.info"
     	)
     	
     	message(STATUS "Command to generate HTML output: ")
@@ -289,7 +292,6 @@ function(setup_target_for_coverage_lcov)
         COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -a ${Coverage_NAME}.base -a ${Coverage_NAME}.capture --output-file ${Coverage_NAME}.total
         # filter collected data to final coverage report
         COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} --output-file ${Coverage_NAME}.info
-
         # Generate HTML output
         COMMAND ${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} ${Coverage_GENHTML_ARGS} -o ${Coverage_NAME} ${Coverage_NAME}.info
 
