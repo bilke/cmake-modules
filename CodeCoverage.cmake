@@ -233,46 +233,46 @@ function(setup_target_for_coverage_lcov)
     endif()
     
     if(CODE_COVERAGE_VERBOSE)
-    	message(STATUS 
-    		"Executed command report (lists are shown semicolon " 
-    		"separated here but are escaped again): "
-    	)
-    	message(STATUS "Command to clean up LCOV: ")
-    	message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} "
-    		"--gcov-tool ${GCOV_PATH} -directory . -b ${BASEDIR} "
-    		"--zerocounters"
-    	)
-    	
-    	message(STATUS "Command to create baseline: ")
-    	message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
-    		"${GCOV_PATH} -c -i -d . -b ${BASEDIR} -o ${Coverage_NAME}.base"
-    	)
-    	
-    	message(STATUS "Command to run the tests: ")
-    	message(STATUS "${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}")
-    	
-    	message(STATUS "Command to capture counters and generate report: ")
-    	message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
-    		"${GCOV_PATH} --directory . -b ${BASEDIR} --capture "
-    		"--output-file ${Coverage_NAME}.capture"
-    	)
-    	
-    	message(STATUS "Command to add baseline counters: ")
-    	message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
-    		"${GCOV_PATH} -a ${Coverage_NAME}.base -a ${Coverage_NAME}.capture "
-    		"--output-file ${Coverage_NAME}.total"
-    	)
+        message(STATUS 
+            "Executed command report (lists are shown semicolon " 
+            "separated here but are escaped again): "
+        )
+        message(STATUS "Command to clean up LCOV: ")
+        message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} "
+            "--gcov-tool ${GCOV_PATH} -directory . -b ${BASEDIR} "
+            "--zerocounters"
+        )
+        
+        message(STATUS "Command to create baseline: ")
+        message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
+            "${GCOV_PATH} -c -i -d . -b ${BASEDIR} -o ${Coverage_NAME}.base"
+        )
+        
+        message(STATUS "Command to run the tests: ")
+        message(STATUS "${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}")
+        
+        message(STATUS "Command to capture counters and generate report: ")
+        message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
+            "${GCOV_PATH} --directory . -b ${BASEDIR} --capture "
+            "--output-file ${Coverage_NAME}.capture"
+        )
+        
+        message(STATUS "Command to add baseline counters: ")
+        message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
+            "${GCOV_PATH} -a ${Coverage_NAME}.base -a ${Coverage_NAME}.capture "
+            "--output-file ${Coverage_NAME}.total"
+        )
 
-    	message(STATUS "Command to filter collected data: ")
-    	message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
-    		"${GCOV_PATH} --remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} "
-    		"--output-file ${Coverage_NAME}.info"
-    	)
-    	
-    	message(STATUS "Command to generate HTML output: ")
-    	message(STATUS "${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} "
-    		"${Coverage_GENHTML_ARGS} -o ${Coverage_NAME} ${Coverage_NAME}.info"
-    	)
+        message(STATUS "Command to filter collected data: ")
+        message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
+            "${GCOV_PATH} --remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} "
+            "--output-file ${Coverage_NAME}.info"
+        )
+        
+        message(STATUS "Command to generate HTML output: ")
+        message(STATUS "${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} "
+            "${Coverage_GENHTML_ARGS} -o ${Coverage_NAME} ${Coverage_NAME}.info"
+        )
     endif()
 
     # Setup target
