@@ -226,7 +226,7 @@ function(setup_target_for_coverage_lcov)
         list(APPEND LCOV_EXCLUDES "${EXCLUDE}")
     endforeach()
     list(REMOVE_DUPLICATES LCOV_EXCLUDES)
-    
+
     # Conditional arguments
     if(CPPFILT_PATH AND NOT ${Coverage_NO_DEMANGLE})
       set(GENHTML_EXTRA_ARGS "--demangle-cpp")
@@ -242,21 +242,21 @@ function(setup_target_for_coverage_lcov)
             "--gcov-tool ${GCOV_PATH} -directory . -b ${BASEDIR} "
             "--zerocounters"
         )
-        
+
         message(STATUS "Command to create baseline: ")
         message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
             "${GCOV_PATH} -c -i -d . -b ${BASEDIR} -o ${Coverage_NAME}.base"
         )
-        
+
         message(STATUS "Command to run the tests: ")
         message(STATUS "${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}")
-        
+
         message(STATUS "Command to capture counters and generate report: ")
         message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
             "${GCOV_PATH} --directory . -b ${BASEDIR} --capture "
             "--output-file ${Coverage_NAME}.capture"
         )
-        
+
         message(STATUS "Command to add baseline counters: ")
         message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
             "${GCOV_PATH} -a ${Coverage_NAME}.base -a ${Coverage_NAME}.capture "
@@ -268,7 +268,7 @@ function(setup_target_for_coverage_lcov)
             "${GCOV_PATH} --remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} "
             "--output-file ${Coverage_NAME}.info"
         )
-        
+
         message(STATUS "Command to generate HTML output: ")
         message(STATUS "${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} "
             "${Coverage_GENHTML_ARGS} -o ${Coverage_NAME} ${Coverage_NAME}.info"
