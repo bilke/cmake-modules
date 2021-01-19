@@ -427,6 +427,8 @@ endfunction() # setup_target_for_coverage_gcovr_xml
 #     EXCLUDE "src/dir1/*" "src/dir2/*"      # Patterns to exclude (can be relative
 #                                            #  to BASE_DIRECTORY, with CMake 3.4+)
 # )
+# The user can set the variable GCOVR_ADDITIONAL_ARGS to supply additional flags to the 
+# GCVOR command.
 function(setup_target_for_coverage_gcovr_html)
 
     set(options NONE)
