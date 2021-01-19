@@ -66,6 +66,9 @@
 # - Make all add_custom_target()s VERBATIM to auto-escape wildcard characters
 #   in EXCLUDEs, and remove manual escaping from gcovr targets
 #
+# 2021-01-19, Robin Mueller
+# - Add CODE_COVERAGE_VERBOSE option which will allow to print out commands which are run
+#
 # USAGE:
 #
 # 1. Copy this file into your cmake modules path.
@@ -459,40 +462,44 @@ function(setup_target_for_coverage_gcovr_html)
         list(APPEND GCOVR_EXCLUDE_ARGS "${EXCLUDE}")
     endforeach()
 
+    # Set up commands which will be run to generate coverage data
+    # Run tests
+    set(GCOVR_HTML_EXEC_TESTS_CMD
+            ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
+    )
+    # Create folder
+    set(GCOVR_HTML_FOLDER_CMD
+            ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/${Coverage_NAME}
+    )
+    # Running gcovr
+    set(GCOVR_HTML_CMD
+            ${GCOVR_PATH} --html --html-details -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
+            ${GCOVR_EXCLUDE_ARGS} --object-directory=${PROJECT_BINARY_DIR}
+            -o ${Coverage_NAME}/index.html
+    )
+
     if(CODE_COVERAGE_VERBOSE)
         message(STATUS
-            "Executed command report (lists are shown semicolon "
-            "separated here but are escaped again): "
+            "Executed command report"
         )
 
         message(STATUS "Command to run tests: ")
-        message(STATUS "${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}")
+        string(REPLACE ";" " " GCOVR_HTML_EXEC_TESTS_CMD_SPACED "${GCOVR_HTML_EXEC_TESTS_CMD}")
+        message(STATUS "${GCOVR_HTML_EXEC_TESTS_CMD_SPACED}")
 
-        message(STATUS "Command to create folder: ")
-        message(STATUS "${CMAKE_COMMAND} -E make_directory "
-            "${PROJECT_BINARY_DIR}/${Coverage_NAME}"
-        )
+        message(STATUS "Command to create a folder: ")
+        string(REPLACE ";" " " GCOVR_HTML_FOLDER_CMD_SPACED "${GCOVR_HTML_FOLDER_CMD}")
+        message(STATUS "${GCOVR_HTML_FOLDER_CMD_SPACED}")
 
-        message(STATUS "GCOVR command: ")
-        message(STATUS "${GCOVR_PATH} --html --html-details "
-            "-r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS} ${GCOVR_EXCLUDE_ARGS} "
-            "--object-directory=${PROJECT_BINARY_DIR} "
-            "-o ${Coverage_NAME}/index.html "
-        )
+        message(STATUS "Command to generate GCOVR coverage data: ")
+        string(REPLACE ";" " " GCOVR_HTML_CMD_SPACED "${GCOVR_HTML_CMD}")
+        message(STATUS "${GCOVR_HTML_CMD_SPACED}")
     endif()
 
     add_custom_target(${Coverage_NAME}
-        # Run tests
-        ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
-
-        # Create folder
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/${Coverage_NAME}
-
-        # Running gcovr
-        COMMAND ${GCOVR_PATH} --html --html-details
-            -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS} ${GCOVR_EXCLUDE_ARGS}
-            --object-directory=${PROJECT_BINARY_DIR}
-            -o ${Coverage_NAME}/index.html
+        COMMAND ${GCOVR_HTML_EXEC_TESTS_CMD}
+        COMMAND ${GCOVR_HTML_FOLDER_CMD}
+        COMMAND ${GCOVR_HTML_CMD}
 
         BYPRODUCTS ${PROJECT_BINARY_DIR}/${Coverage_NAME}  # report directory
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
