@@ -68,6 +68,8 @@
 #
 # 2021-01-19, Robin Mueller
 # - Add CODE_COVERAGE_VERBOSE option which will allow to print out commands which are run
+# - Added the option for users to set the GCOVR_ADDITIONAL_ARGS variable to supply additional
+#   flags to the gcovr command
 #
 # USAGE:
 #
@@ -355,6 +357,8 @@ endfunction() # setup_target_for_coverage_lcov
 #     EXCLUDE "src/dir1/*" "src/dir2/*"      # Patterns to exclude (can be relative
 #                                            #  to BASE_DIRECTORY, with CMake 3.4+)
 # )
+# The user can set the variable GCOVR_ADDITIONAL_ARGS to supply additional flags to the
+# GCVOR command.
 function(setup_target_for_coverage_gcovr_xml)
 
     set(options NONE)
@@ -450,7 +454,7 @@ endfunction() # setup_target_for_coverage_gcovr_xml
 #     EXCLUDE "src/dir1/*" "src/dir2/*"      # Patterns to exclude (can be relative
 #                                            #  to BASE_DIRECTORY, with CMake 3.4+)
 # )
-# The user can set the variable GCOVR_ADDITIONAL_ARGS to supply additional flags to the 
+# The user can set the variable GCOVR_ADDITIONAL_ARGS to supply additional flags to the
 # GCVOR command.
 function(setup_target_for_coverage_gcovr_html)
 
