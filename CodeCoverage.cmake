@@ -231,70 +231,84 @@ function(setup_target_for_coverage_lcov)
     if(CPPFILT_PATH AND NOT ${Coverage_NO_DEMANGLE})
       set(GENHTML_EXTRA_ARGS "--demangle-cpp")
     endif()
+     
+    # Setting up commands which will be run to generate coverage data.
+    # Cleanup lcov
+    set(LCOV_CLEAN_CMD 
+    		${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -directory . 
+    		-b ${BASEDIR} --zerocounters
+    )
+    # Create baseline to make sure untouched files show up in the report
+    set(LCOV_BASELINE_CMD 
+            ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d . -b 
+            ${BASEDIR} -o ${Coverage_NAME}.base
+    )
+    # Run tests
+    set(LCOV_EXEC_TESTS_CMD 
+            ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
+    )    
+    # Capturing lcov counters and generating report
+    set(LCOV_CAPTURE_CMD 
+            ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b 
+            ${BASEDIR} --capture --output-file ${Coverage_NAME}.capture
+    )
+    # add baseline counters
+    set(LCOV_BASELINE_COUNT_CMD
+            ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -a ${Coverage_NAME}.base 
+            -a ${Coverage_NAME}.capture --output-file ${Coverage_NAME}.total
+    ) 
+    # filter collected data to final coverage report
+    set(LCOV_FILTER_CMD 
+            ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --remove 
+            ${Coverage_NAME}.total ${LCOV_EXCLUDES} --output-file ${Coverage_NAME}.info
+    )    
+    # Generate HTML output
+    set(LCOV_GEN_HTML_CMD
+            ${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} ${Coverage_GENHTML_ARGS} -o 
+            ${Coverage_NAME} ${Coverage_NAME}.info
+    )
+    
 
     if(CODE_COVERAGE_VERBOSE)
-        message(STATUS
-            "Executed command report (lists are shown semicolon "
-            "separated here but are escaped again): "
-        )
+        message(STATUS "Executed command report")
         message(STATUS "Command to clean up LCOV: ")
-        message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} "
-            "--gcov-tool ${GCOV_PATH} -directory . -b ${BASEDIR} "
-            "--zerocounters"
-        )
+        string(REPLACE ";" " " LCOV_CLEAN_CMD_SPACED "${LCOV_CLEAN_CMD}")
+        message(STATUS "${LCOV_CLEAN_CMD_SPACED}")
 
         message(STATUS "Command to create baseline: ")
-        message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
-            "${GCOV_PATH} -c -i -d . -b ${BASEDIR} -o ${Coverage_NAME}.base"
-        )
+        string(REPLACE ";" " " LCOV_BASELINE_CMD_SPACED "${LCOV_BASELINE_CMD}")
+        message(STATUS "${LCOV_BASELINE_CMD_SPACED}")
 
         message(STATUS "Command to run the tests: ")
-        message(STATUS "${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}")
+        string(REPLACE ";" " " LCOV_EXEC_TESTS_CMD_SPACED "${LCOV_EXEC_TESTS_CMD}")
+        message(STATUS "${LCOV_EXEC_TESTS_CMD_SPACED}")
 
         message(STATUS "Command to capture counters and generate report: ")
-        message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
-            "${GCOV_PATH} --directory . -b ${BASEDIR} --capture "
-            "--output-file ${Coverage_NAME}.capture"
-        )
+        string(REPLACE ";" " " LCOV_CAPTURE_CMD_SPACED "${LCOV_CAPTURE_CMD}")
+        message(STATUS "${LCOV_CAPTURE_CMD_SPACED}")
 
         message(STATUS "Command to add baseline counters: ")
-        message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
-            "${GCOV_PATH} -a ${Coverage_NAME}.base -a ${Coverage_NAME}.capture "
-            "--output-file ${Coverage_NAME}.total"
-        )
+        string(REPLACE ";" " " LCOV_BASELINE_COUNT_CMD_SPACED "${LCOV_BASELINE_COUNT_CMD}")
+        message(STATUS "${LCOV_BASELINE_COUNT_CMD_SPACED}")
 
         message(STATUS "Command to filter collected data: ")
-        message(STATUS "${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool "
-            "${GCOV_PATH} --remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} "
-            "--output-file ${Coverage_NAME}.info"
-        )
+        string(REPLACE ";" " " LCOV_FILTER_CMD_SPACED "${LCOV_FILTER_CMD}")
+        message(STATUS "${LCOV_FILTER_CMD_SPACED}")
 
         message(STATUS "Command to generate HTML output: ")
-        message(STATUS "${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} "
-            "${Coverage_GENHTML_ARGS} -o ${Coverage_NAME} ${Coverage_NAME}.info"
-        )
+        string(REPLACE ";" " " LCOV_GEN_HTML_CMD_SPACED "${LCOV_GEN_HTML_CMD}")
+        message(STATUS "${LCOV_GEN_HTML_CMD_SPACED}")
     endif()
 
     # Setup target
     add_custom_target(${Coverage_NAME}
-
-        # Cleanup lcov
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -directory . -b ${BASEDIR} --zerocounters
-        # Create baseline to make sure untouched files show up in the report
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d . -b ${BASEDIR} -o ${Coverage_NAME}.base
-
-        # Run tests
-        COMMAND ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
-
-        # Capturing lcov counters and generating report
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b ${BASEDIR} --capture --output-file ${Coverage_NAME}.capture
-        # add baseline counters
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -a ${Coverage_NAME}.base -a ${Coverage_NAME}.capture --output-file ${Coverage_NAME}.total
-        # filter collected data to final coverage report
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} --output-file ${Coverage_NAME}.info
-
-        # Generate HTML output
-        COMMAND ${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} ${Coverage_GENHTML_ARGS} -o ${Coverage_NAME} ${Coverage_NAME}.info
+        COMMAND ${LCOV_CLEAN_CMD}
+        COMMAND ${LCOV_BASELINE_CMD} 
+        COMMAND ${LCOV_EXEC_TESTS_CMD}
+        COMMAND ${LCOV_CAPTURE_CMD}
+        COMMAND ${LCOV_BASELINE_COUNT_CMD}
+        COMMAND ${LCOV_FILTER_CMD} 
+        COMMAND ${LCOV_GEN_HTML_CMD}
 
         # Set output files as GENERATED (will be removed on 'make clean')
         BYPRODUCTS
