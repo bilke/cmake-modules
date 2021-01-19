@@ -418,14 +418,9 @@ function(setup_target_for_coverage_gcovr_xml)
     endif()
 
     add_custom_target(${Coverage_NAME}
-        # Run tests
-        ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
-
-        # Running gcovr
-        COMMAND ${GCOVR_PATH} --xml
-            -r ${BASEDIR} ${GCOVR_EXCLUDE_ARGS}
-            --object-directory=${PROJECT_BINARY_DIR}
-            -o ${Coverage_NAME}.xml
+        COMMAND ${GCOVR_XML_EXEC_TESTS_CMD}
+        COMMAND ${GCOVR_XML_CMD}
+        
         BYPRODUCTS ${Coverage_NAME}.xml
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
