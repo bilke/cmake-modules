@@ -66,6 +66,11 @@
 # - Make all add_custom_target()s VERBATIM to auto-escape wildcard characters
 #   in EXCLUDEs, and remove manual escaping from gcovr targets
 #
+# 2021-01-19, Robin Mueller
+# - Add CODE_COVERAGE_VERBOSE option which will allow to print out commands which are run
+# - Added the option for users to set the GCOVR_ADDITIONAL_ARGS variable to supply additional
+#   flags to the gcovr command
+#
 # USAGE:
 #
 # 1. Copy this file into your cmake modules path.
@@ -113,6 +118,8 @@
 #
 
 include(CMakeParseArguments)
+
+option(CODE_COVERAGE_VERBOSE "Verbose information" FALSE)
 
 # Check prereqs
 find_program( GCOV_PATH gcov )
@@ -229,27 +236,84 @@ function(setup_target_for_coverage_lcov)
     if(CPPFILT_PATH AND NOT ${Coverage_NO_DEMANGLE})
       set(GENHTML_EXTRA_ARGS "--demangle-cpp")
     endif()
+     
+    # Setting up commands which will be run to generate coverage data.
+    # Cleanup lcov
+    set(LCOV_CLEAN_CMD 
+        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -directory . 
+        -b ${BASEDIR} --zerocounters
+    )
+    # Create baseline to make sure untouched files show up in the report
+    set(LCOV_BASELINE_CMD 
+        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d . -b 
+        ${BASEDIR} -o ${Coverage_NAME}.base
+    )
+    # Run tests
+    set(LCOV_EXEC_TESTS_CMD 
+        ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
+    )    
+    # Capturing lcov counters and generating report
+    set(LCOV_CAPTURE_CMD 
+        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b 
+        ${BASEDIR} --capture --output-file ${Coverage_NAME}.capture
+    )
+    # add baseline counters
+    set(LCOV_BASELINE_COUNT_CMD
+        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -a ${Coverage_NAME}.base 
+        -a ${Coverage_NAME}.capture --output-file ${Coverage_NAME}.total
+    ) 
+    # filter collected data to final coverage report
+    set(LCOV_FILTER_CMD 
+        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --remove 
+        ${Coverage_NAME}.total ${LCOV_EXCLUDES} --output-file ${Coverage_NAME}.info
+    )    
+    # Generate HTML output
+    set(LCOV_GEN_HTML_CMD
+        ${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} ${Coverage_GENHTML_ARGS} -o 
+        ${Coverage_NAME} ${Coverage_NAME}.info
+    )
+    
+
+    if(CODE_COVERAGE_VERBOSE)
+        message(STATUS "Executed command report")
+        message(STATUS "Command to clean up lcov: ")
+        string(REPLACE ";" " " LCOV_CLEAN_CMD_SPACED "${LCOV_CLEAN_CMD}")
+        message(STATUS "${LCOV_CLEAN_CMD_SPACED}")
+
+        message(STATUS "Command to create baseline: ")
+        string(REPLACE ";" " " LCOV_BASELINE_CMD_SPACED "${LCOV_BASELINE_CMD}")
+        message(STATUS "${LCOV_BASELINE_CMD_SPACED}")
+
+        message(STATUS "Command to run the tests: ")
+        string(REPLACE ";" " " LCOV_EXEC_TESTS_CMD_SPACED "${LCOV_EXEC_TESTS_CMD}")
+        message(STATUS "${LCOV_EXEC_TESTS_CMD_SPACED}")
+
+        message(STATUS "Command to capture counters and generate report: ")
+        string(REPLACE ";" " " LCOV_CAPTURE_CMD_SPACED "${LCOV_CAPTURE_CMD}")
+        message(STATUS "${LCOV_CAPTURE_CMD_SPACED}")
+
+        message(STATUS "Command to add baseline counters: ")
+        string(REPLACE ";" " " LCOV_BASELINE_COUNT_CMD_SPACED "${LCOV_BASELINE_COUNT_CMD}")
+        message(STATUS "${LCOV_BASELINE_COUNT_CMD_SPACED}")
+
+        message(STATUS "Command to filter collected data: ")
+        string(REPLACE ";" " " LCOV_FILTER_CMD_SPACED "${LCOV_FILTER_CMD}")
+        message(STATUS "${LCOV_FILTER_CMD_SPACED}")
+
+        message(STATUS "Command to generate lcov HTML output: ")
+        string(REPLACE ";" " " LCOV_GEN_HTML_CMD_SPACED "${LCOV_GEN_HTML_CMD}")
+        message(STATUS "${LCOV_GEN_HTML_CMD_SPACED}")
+    endif()
 
     # Setup target
     add_custom_target(${Coverage_NAME}
-
-        # Cleanup lcov
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -directory . -b ${BASEDIR} --zerocounters
-        # Create baseline to make sure untouched files show up in the report
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d . -b ${BASEDIR} -o ${Coverage_NAME}.base
-
-        # Run tests
-        COMMAND ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
-
-        # Capturing lcov counters and generating report
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b ${BASEDIR} --capture --output-file ${Coverage_NAME}.capture
-        # add baseline counters
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -a ${Coverage_NAME}.base -a ${Coverage_NAME}.capture --output-file ${Coverage_NAME}.total
-        # filter collected data to final coverage report
-        COMMAND ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --remove ${Coverage_NAME}.total ${LCOV_EXCLUDES} --output-file ${Coverage_NAME}.info
-
-        # Generate HTML output
-        COMMAND ${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} ${Coverage_GENHTML_ARGS} -o ${Coverage_NAME} ${Coverage_NAME}.info
+        COMMAND ${LCOV_CLEAN_CMD}
+        COMMAND ${LCOV_BASELINE_CMD} 
+        COMMAND ${LCOV_EXEC_TESTS_CMD}
+        COMMAND ${LCOV_CAPTURE_CMD}
+        COMMAND ${LCOV_BASELINE_COUNT_CMD}
+        COMMAND ${LCOV_FILTER_CMD} 
+        COMMAND ${LCOV_GEN_HTML_CMD}
 
         # Set output files as GENERATED (will be removed on 'make clean')
         BYPRODUCTS
@@ -293,6 +357,8 @@ endfunction() # setup_target_for_coverage_lcov
 #     EXCLUDE "src/dir1/*" "src/dir2/*"      # Patterns to exclude (can be relative
 #                                            #  to BASE_DIRECTORY, with CMake 3.4+)
 # )
+# The user can set the variable GCOVR_ADDITIONAL_ARGS to supply additional flags to the
+# GCVOR command.
 function(setup_target_for_coverage_gcovr_xml)
 
     set(options NONE)
@@ -327,16 +393,34 @@ function(setup_target_for_coverage_gcovr_xml)
         list(APPEND GCOVR_EXCLUDE_ARGS "-e")
         list(APPEND GCOVR_EXCLUDE_ARGS "${EXCLUDE}")
     endforeach()
+    
+    # Set up commands which will be run to generate coverage data
+    # Run tests
+    set(GCOVR_XML_EXEC_TESTS_CMD
+        ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
+    )
+    # Running gcovr
+    set(GCOVR_XML_CMD
+        ${GCOVR_PATH} --xml -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS} ${GCOVR_EXCLUDE_ARGS} 
+        --object-directory=${PROJECT_BINARY_DIR} -o ${Coverage_NAME}.xml
+    )
+    
+    if(CODE_COVERAGE_VERBOSE)
+        message(STATUS "Executed command report")
+
+        message(STATUS "Command to run tests: ")
+        string(REPLACE ";" " " GCOVR_XML_EXEC_TESTS_CMD_SPACED "${GCOVR_XML_EXEC_TESTS_CMD}")
+        message(STATUS "${GCOVR_XML_EXEC_TESTS_CMD_SPACED}")
+
+        message(STATUS "Command to generate gcovr XML coverage data: ")
+        string(REPLACE ";" " " GCOVR_XML_CMD_SPACED "${GCOVR_XML_CMD}")
+        message(STATUS "${GCOVR_XML_CMD_SPACED}")
+    endif()
 
     add_custom_target(${Coverage_NAME}
-        # Run tests
-        ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
-
-        # Running gcovr
-        COMMAND ${GCOVR_PATH} --xml
-            -r ${BASEDIR} ${GCOVR_EXCLUDE_ARGS}
-            --object-directory=${PROJECT_BINARY_DIR}
-            -o ${Coverage_NAME}.xml
+        COMMAND ${GCOVR_XML_EXEC_TESTS_CMD}
+        COMMAND ${GCOVR_XML_CMD}
+        
         BYPRODUCTS ${Coverage_NAME}.xml
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
@@ -365,6 +449,8 @@ endfunction() # setup_target_for_coverage_gcovr_xml
 #     EXCLUDE "src/dir1/*" "src/dir2/*"      # Patterns to exclude (can be relative
 #                                            #  to BASE_DIRECTORY, with CMake 3.4+)
 # )
+# The user can set the variable GCOVR_ADDITIONAL_ARGS to supply additional flags to the
+# GCVOR command.
 function(setup_target_for_coverage_gcovr_html)
 
     set(options NONE)
@@ -400,18 +486,42 @@ function(setup_target_for_coverage_gcovr_html)
         list(APPEND GCOVR_EXCLUDE_ARGS "${EXCLUDE}")
     endforeach()
 
-    add_custom_target(${Coverage_NAME}
-        # Run tests
+    # Set up commands which will be run to generate coverage data
+    # Run tests
+    set(GCOVR_HTML_EXEC_TESTS_CMD
         ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
+    )
+    # Create folder
+    set(GCOVR_HTML_FOLDER_CMD
+        ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/${Coverage_NAME}
+    )
+    # Running gcovr
+    set(GCOVR_HTML_CMD
+        ${GCOVR_PATH} --html --html-details -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
+        ${GCOVR_EXCLUDE_ARGS} --object-directory=${PROJECT_BINARY_DIR} 
+        -o ${Coverage_NAME}/index.html
+    )
 
-        # Create folder
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_BINARY_DIR}/${Coverage_NAME}
+    if(CODE_COVERAGE_VERBOSE)
+        message(STATUS "Executed command report")
 
-        # Running gcovr
-        COMMAND ${GCOVR_PATH} --html --html-details
-            -r ${BASEDIR} ${GCOVR_EXCLUDE_ARGS}
-            --object-directory=${PROJECT_BINARY_DIR}
-            -o ${Coverage_NAME}/index.html
+        message(STATUS "Command to run tests: ")
+        string(REPLACE ";" " " GCOVR_HTML_EXEC_TESTS_CMD_SPACED "${GCOVR_HTML_EXEC_TESTS_CMD}")
+        message(STATUS "${GCOVR_HTML_EXEC_TESTS_CMD_SPACED}")
+
+        message(STATUS "Command to create a folder: ")
+        string(REPLACE ";" " " GCOVR_HTML_FOLDER_CMD_SPACED "${GCOVR_HTML_FOLDER_CMD}")
+        message(STATUS "${GCOVR_HTML_FOLDER_CMD_SPACED}")
+
+        message(STATUS "Command to generate gcovr HTML coverage data: ")
+        string(REPLACE ";" " " GCOVR_HTML_CMD_SPACED "${GCOVR_HTML_CMD}")
+        message(STATUS "${GCOVR_HTML_CMD_SPACED}")
+    endif()
+
+    add_custom_target(${Coverage_NAME}
+        COMMAND ${GCOVR_HTML_EXEC_TESTS_CMD}
+        COMMAND ${GCOVR_HTML_FOLDER_CMD}
+        COMMAND ${GCOVR_HTML_CMD}
 
         BYPRODUCTS ${PROJECT_BINARY_DIR}/${Coverage_NAME}  # report directory
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
