@@ -566,10 +566,11 @@ endfunction() # setup_target_for_coverage_gcovr_html
 #     EXCLUDE "src/dir1/" "src/dir2/"             # Patterns to exclude.
 #     NO_DEMANGLE                                 # Don't demangle C++ symbols
 #                                                 #  even if c++filt is found
+#     SKIP_HTML                                   # Don't create html report
 # )
 function(setup_target_for_coverage_fastcov)
 
-    set(options NO_DEMANGLE)
+    set(options NO_DEMANGLE SKIP_HTML)
     set(oneValueArgs BASE_DIRECTORY NAME)
     set(multiValueArgs EXCLUDE EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES FASTCOV_ARGS GENHTML_ARGS)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -613,24 +614,30 @@ function(setup_target_for_coverage_fastcov)
         --exclude ${FASTCOV_EXCLUDES}
     )
 
-    set(FASTCOV_HTML_CMD ${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} ${Coverage_GENHTML_ARGS}
-        -o ${Coverage_NAME} ${Coverage_NAME}.info
-    )
+    if(Coverage_SKIP_HTML)
+        set(FASTCOV_HTML_CMD ";")
+    else()
+        set(FASTCOV_HTML_CMD ${GENHTML_PATH} ${GENHTML_EXTRA_ARGS} ${Coverage_GENHTML_ARGS}
+            -o ${Coverage_NAME} ${Coverage_NAME}.info
+        )
+    endif()
 
     if(CODE_COVERAGE_VERBOSE)
-        message(STATUS "Code coverage commands:")
+        message(STATUS "Code coverage commands for target ${Coverage_NAME} (fastcov):")
 
-        message(STATUS "  Command to run tests:")
+        message("   Running tests:")
         string(REPLACE ";" " " FASTCOV_EXEC_TESTS_CMD_SPACED "${FASTCOV_EXEC_TESTS_CMD}")
-        message(STATUS "    ${FASTCOV_EXEC_TESTS_CMD_SPACED}")
+        message("     ${FASTCOV_EXEC_TESTS_CMD_SPACED}")
 
-        message(STATUS "  Command to capture fastcov counters and generate report:")
+        message("   Capturing fastcov counters and generating report:")
         string(REPLACE ";" " " FASTCOV_CAPTURE_CMD_SPACED "${FASTCOV_CAPTURE_CMD}")
-        message(STATUS "    ${FASTCOV_CAPTURE_CMD_SPACED}")
+        message("     ${FASTCOV_CAPTURE_CMD_SPACED}")
 
-        message(STATUS "  Command to generate HTML report: ")
-        string(REPLACE ";" " " FASTCOV_HTML_CMD_SPACED "${FASTCOV_HTML_CMD}")
-        message(STATUS "    ${FASTCOV_HTML_CMD_SPACED}")
+        if(NOT Coverage_SKIP_HTML)
+            message("   Generating HTML report: ")
+            string(REPLACE ";" " " FASTCOV_HTML_CMD_SPACED "${FASTCOV_HTML_CMD}")
+            message("     ${FASTCOV_HTML_CMD_SPACED}")
+        endif()
     endif()
 
     # Setup target
@@ -656,11 +663,13 @@ function(setup_target_for_coverage_fastcov)
         COMMENT "Resetting code coverage counters to zero. Processing code coverage counters and generating report."
     )
 
+    set(INFO_MSG "fastcov code coverage info report saved in ${Coverage_NAME}.info.")
+    if(NOT Coverage_SKIP_HTML)
+        string(APPEND INFO_MSG " Open ${PROJECT_BINARY_DIR}/${Coverage_NAME}/index.html in your browser to view the coverage report.")
+    endif()
     # Show where to find the fastcov info report
     add_custom_command(TARGET ${Coverage_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E echo
-            "fastcov code coverage info report saved in ${Coverage_NAME}.info."
-            "Open ${PROJECT_BINARY_DIR}/${Coverage_NAME}/index.html in your browser to view the coverage report."
+        COMMAND ${CMAKE_COMMAND} -E echo ${INFO_MSG}
     )
 
 endfunction() # setup_target_for_coverage_fastcov
