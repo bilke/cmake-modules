@@ -8,7 +8,7 @@
 # - MKL_INCLUDE_DIR
 # - MKL_LIBRARIES
 #
-# Copyright (c) 2012-2018, OpenGeoSys Community (http://www.opengeosys.org)
+# Copyright (c) 2012-2021, OpenGeoSys Community (http://www.opengeosys.org)
 # Distributed under a Modified BSD License.
 # See accompanying file LICENSE.txt or
 # http://www.opengeosys.org/project/license
@@ -22,12 +22,16 @@ if (NOT MKL_DIR)
         /opt/intel/mkl/
         )
 endif()
-message(STATUS "MKL_DIR : ${MKL_DIR}")
+if(MKL_DIR)
+    message(STATUS "MKL_DIR : ${MKL_DIR}")
+endif()
 
 # Find MKL include dir
 find_path(MKL_INCLUDE_DIR NAMES mkl.h
     PATHS
-    ${MKL_DIR}/include
+        ${MKL_DIR}/include
+    PATH_SUFFIXES
+        mkl
 )
 
 # Set the directory path storing MKL libraries
