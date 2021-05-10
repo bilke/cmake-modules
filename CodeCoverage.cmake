@@ -75,6 +75,10 @@
 #     - Add -fprofile-abs-path to make gcno files contain absolute paths
 #     - Fix BASE_DIRECTORY not working when defined
 #     - Change BYPRODUCT from folder to index.html to stop ninja from complaining about double defines
+#
+# 2021-05-10, Martin Stump
+#     - Check if the generator is multi-config before warning about non-Debug builds
+#
 # USAGE:
 #
 # 1. Copy this file into your cmake modules path.
@@ -191,9 +195,10 @@ mark_as_advanced(
     CMAKE_EXE_LINKER_FLAGS_COVERAGE
     CMAKE_SHARED_LINKER_FLAGS_COVERAGE )
 
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR GENERATOR_IS_MULTI_CONFIG))
     message(WARNING "Code coverage results with an optimised (non-Debug) build may be misleading")
-endif() # NOT CMAKE_BUILD_TYPE STREQUAL "Debug"
+endif() # NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR GENERATOR_IS_MULTI_CONFIG)
 
 if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
     link_libraries(gcov)
