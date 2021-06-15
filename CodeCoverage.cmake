@@ -584,7 +584,7 @@ function(setup_target_for_coverage_fastcov)
         message(FATAL_ERROR "fastcov not found! Aborting...")
     endif()
 
-    if(NOT GENHTML_PATH)
+    if(NOT Coverage_SKIP_HTML AND NOT GENHTML_PATH)
         message(FATAL_ERROR "genhtml not found! Aborting...")
     endif()
 
@@ -613,10 +613,13 @@ function(setup_target_for_coverage_fastcov)
     set(FASTCOV_CAPTURE_CMD ${FASTCOV_PATH} ${Coverage_FASTCOV_ARGS} --gcov ${GCOV_PATH}
         --search-directory ${BASEDIR}
         --process-gcno
-        --lcov
-        --output ${Coverage_NAME}.info
+        --output ${Coverage_NAME}.json
         --exclude ${FASTCOV_EXCLUDES}
         --exclude ${FASTCOV_EXCLUDES}
+    )
+    
+    set(FASTCOV_CONVERT_CMD ${FASTCOV_PATH}
+        -C ${Coverage_NAME}.json --lcov --output ${Coverage_NAME}.info
     )
 
     if(Coverage_SKIP_HTML)
@@ -638,6 +641,10 @@ function(setup_target_for_coverage_fastcov)
         string(REPLACE ";" " " FASTCOV_CAPTURE_CMD_SPACED "${FASTCOV_CAPTURE_CMD}")
         message("     ${FASTCOV_CAPTURE_CMD_SPACED}")
 
+        message("   Converting fastcov .json to lcov .info:")
+        string(REPLACE ";" " " FASTCOV_CONVERT_CMD_SPACED "${FASTCOV_CONVERT_CMD}")
+        message("     ${FASTCOV_CONVERT_CMD_SPACED}")
+
         if(NOT Coverage_SKIP_HTML)
             message("   Generating HTML report: ")
             string(REPLACE ";" " " FASTCOV_HTML_CMD_SPACED "${FASTCOV_HTML_CMD}")
@@ -655,11 +662,13 @@ function(setup_target_for_coverage_fastcov)
 
         COMMAND ${FASTCOV_EXEC_TESTS_CMD}
         COMMAND ${FASTCOV_CAPTURE_CMD}
+        COMMAND ${FASTCOV_CONVERT_CMD}
         COMMAND ${FASTCOV_HTML_CMD}
 
         # Set output files as GENERATED (will be removed on 'make clean')
         BYPRODUCTS
              ${Coverage_NAME}.info
+             ${Coverage_NAME}.json
              ${Coverage_NAME}/index.html  # report directory
 
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
@@ -668,7 +677,7 @@ function(setup_target_for_coverage_fastcov)
         COMMENT "Resetting code coverage counters to zero. Processing code coverage counters and generating report."
     )
 
-    set(INFO_MSG "fastcov code coverage info report saved in ${Coverage_NAME}.info.")
+    set(INFO_MSG "fastcov code coverage info report saved in ${Coverage_NAME}.info and ${Coverage_NAME}.json.")
     if(NOT Coverage_SKIP_HTML)
         string(APPEND INFO_MSG " Open ${PROJECT_BINARY_DIR}/${Coverage_NAME}/index.html in your browser to view the coverage report.")
     endif()
