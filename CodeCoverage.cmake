@@ -572,12 +572,13 @@ endfunction() # setup_target_for_coverage_gcovr_html
 #     NO_DEMANGLE                                 # Don't demangle C++ symbols
 #                                                 #  even if c++filt is found
 #     SKIP_HTML                                   # Don't create html report
+#     POST_CMD perl -i -pe s!${PROJECT_SOURCE_DIR}/!!g ctest_coverage.json  # E.g. for stripping source dir from file paths
 # )
 function(setup_target_for_coverage_fastcov)
 
     set(options NO_DEMANGLE SKIP_HTML)
     set(oneValueArgs BASE_DIRECTORY NAME)
-    set(multiValueArgs EXCLUDE EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES FASTCOV_ARGS GENHTML_ARGS)
+    set(multiValueArgs EXCLUDE EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES FASTCOV_ARGS GENHTML_ARGS POST_CMD)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
     if(NOT FASTCOV_PATH)
@@ -630,6 +631,11 @@ function(setup_target_for_coverage_fastcov)
         )
     endif()
 
+    set(FASTCOV_POST_CMD ";")
+    if(Coverage_POST_CMD)
+        set(FASTCOV_POST_CMD ${Coverage_POST_CMD})
+    endif()
+
     if(CODE_COVERAGE_VERBOSE)
         message(STATUS "Code coverage commands for target ${Coverage_NAME} (fastcov):")
 
@@ -650,6 +656,11 @@ function(setup_target_for_coverage_fastcov)
             string(REPLACE ";" " " FASTCOV_HTML_CMD_SPACED "${FASTCOV_HTML_CMD}")
             message("     ${FASTCOV_HTML_CMD_SPACED}")
         endif()
+        if(Coverage_POST_CMD)
+            message("   Running post command: ")
+            string(REPLACE ";" " " FASTCOV_POST_CMD_SPACED "${FASTCOV_POST_CMD}")
+            message("     ${FASTCOV_POST_CMD_SPACED}")
+        endif()
     endif()
 
     # Setup target
@@ -664,6 +675,7 @@ function(setup_target_for_coverage_fastcov)
         COMMAND ${FASTCOV_CAPTURE_CMD}
         COMMAND ${FASTCOV_CONVERT_CMD}
         COMMAND ${FASTCOV_HTML_CMD}
+        COMMAND ${FASTCOV_POST_CMD}
 
         # Set output files as GENERATED (will be removed on 'make clean')
         BYPRODUCTS
