@@ -420,7 +420,7 @@ function(setup_target_for_coverage_gcovr_xml)
     )
     # Running gcovr
     set(GCOVR_XML_CMD
-        ${GCOVR_PATH} --xml -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS} ${GCOVR_EXCLUDE_ARGS} 
+        ${GCOVR_PATH} --xml -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS} ${GCOVR_EXCLUDE_ARGS} --gcov-executable ${GCOV_PATH}
         --object-directory=${PROJECT_BINARY_DIR} -o ${Coverage_NAME}.xml
     )
     
@@ -516,7 +516,7 @@ function(setup_target_for_coverage_gcovr_html)
     )
     # Running gcovr
     set(GCOVR_HTML_CMD
-        ${GCOVR_PATH} --html --html-details -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
+        ${GCOVR_PATH} --html --html-details -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS} --gcov-executable ${GCOV_PATH}
         ${GCOVR_EXCLUDE_ARGS} --object-directory=${PROJECT_BINARY_DIR} 
         -o ${Coverage_NAME}/index.html
     )
