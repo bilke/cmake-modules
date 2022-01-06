@@ -706,3 +706,10 @@ function(append_coverage_compiler_flags)
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
     message(STATUS "Appending code coverage compiler flags: ${COVERAGE_COMPILER_FLAGS}")
 endfunction() # append_coverage_compiler_flags
+
+# Setup coverage for specific library
+function(setup_target_for_coverage name)
+    target_compile_options(${name}
+        PRIVATE ${COVERAGE_COMPILER_FLAGS})
+endfunction()
+
