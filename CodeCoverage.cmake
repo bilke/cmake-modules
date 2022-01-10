@@ -87,8 +87,10 @@
 #    using a CMake option() to enable it just optionally):
 #      include(CodeCoverage)
 #
-# 3. Append necessary compiler flags:
+# 3. Append necessary compiler flags for all supported source files:
 #      append_coverage_compiler_flags()
+#    Or for specific target:
+#      append_coverage_compiler_flags_to_target(YOUR_TARGET_NAME)
 #
 # 3.a (OPTIONAL) Set appropriate optimization flags, e.g. -O0, -O1 or -Og
 #
@@ -708,8 +710,7 @@ function(append_coverage_compiler_flags)
 endfunction() # append_coverage_compiler_flags
 
 # Setup coverage for specific library
-function(setup_target_for_coverage name)
+function(append_coverage_compiler_flags_to_target name)
     target_compile_options(${name}
         PRIVATE ${COVERAGE_COMPILER_FLAGS})
 endfunction()
-
