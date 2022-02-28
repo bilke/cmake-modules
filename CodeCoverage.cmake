@@ -81,7 +81,7 @@
 #
 # 2022-02-22, Marko Wehle
 #     - Change gcovr output from -o <filename> for --xml <filename> and --html <filename> output respectively.
-#       This will allow for Multiple Output Formats at teh soame time by making use of GCOVR_ADDITIONAL_ARGS, e.g. GCOVR_ADDITIONAL_ARGS "--txt".
+#       This will allow for Multiple Output Formats at the same time by making use of GCOVR_ADDITIONAL_ARGS, e.g. GCOVR_ADDITIONAL_ARGS "--txt".
 #
 # USAGE:
 #
