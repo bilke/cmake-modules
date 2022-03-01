@@ -79,6 +79,10 @@
 # 2021-05-10, Martin Stump
 #     - Check if the generator is multi-config before warning about non-Debug builds
 #
+# 2022-02-22, Marko Wehle
+#     - Change gcovr output from -o <filename> for --xml <filename> and --html <filename> output respectively.
+#       This will allow for Multiple Output Formats at the same time by making use of GCOVR_ADDITIONAL_ARGS, e.g. GCOVR_ADDITIONAL_ARGS "--txt".
+#
 # USAGE:
 #
 # 1. Copy this file into your cmake modules path.
@@ -422,8 +426,8 @@ function(setup_target_for_coverage_gcovr_xml)
     )
     # Running gcovr
     set(GCOVR_XML_CMD
-        ${GCOVR_PATH} --xml -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS} ${GCOVR_EXCLUDE_ARGS} 
-        --object-directory=${PROJECT_BINARY_DIR} -o ${Coverage_NAME}.xml
+        ${GCOVR_PATH} --xml ${Coverage_NAME}.xml -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
+        ${GCOVR_EXCLUDE_ARGS} --object-directory=${PROJECT_BINARY_DIR}
     )
     
     if(CODE_COVERAGE_VERBOSE)
@@ -518,9 +522,8 @@ function(setup_target_for_coverage_gcovr_html)
     )
     # Running gcovr
     set(GCOVR_HTML_CMD
-        ${GCOVR_PATH} --html --html-details -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
-        ${GCOVR_EXCLUDE_ARGS} --object-directory=${PROJECT_BINARY_DIR} 
-        -o ${Coverage_NAME}/index.html
+        ${GCOVR_PATH} --html ${Coverage_NAME}/index.html --html-details -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
+        ${GCOVR_EXCLUDE_ARGS} --object-directory=${PROJECT_BINARY_DIR}
     )
 
     if(CODE_COVERAGE_VERBOSE)
