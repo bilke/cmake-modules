@@ -638,7 +638,6 @@ function(setup_target_for_coverage_fastcov)
         --process-gcno
         --output ${Coverage_NAME}.json
         --exclude ${FASTCOV_EXCLUDES}
-        --exclude ${FASTCOV_EXCLUDES}
     )
     
     set(FASTCOV_CONVERT_CMD ${FASTCOV_PATH}
