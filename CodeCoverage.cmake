@@ -299,6 +299,12 @@ function(setup_target_for_coverage_lcov)
         ${Coverage_NAME} ${Coverage_NAME}.info
     )
     if(${Coverage_SONARQUBE})
+        # Combine excludes to several -e arguments
+        set(GCOVR_EXCLUDE_ARGS "")
+        foreach(EXCLUDE ${LCOV_EXCLUDES})
+            list(APPEND GCOVR_EXCLUDE_ARGS "-e")
+            list(APPEND GCOVR_EXCLUDE_ARGS "${EXCLUDE}")
+        endforeach()
         # Generate SonarQube output
         set(GCOVR_XML_CMD
             ${GCOVR_PATH} --sonarqube ${Coverage_NAME}_sonarqube.xml -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
