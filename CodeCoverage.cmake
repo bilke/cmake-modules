@@ -410,12 +410,14 @@ endfunction() # setup_target_for_coverage_lcov
 #                                            #  (defaults to PROJECT_SOURCE_DIR)
 #     EXCLUDE "src/dir1/*" "src/dir2/*"      # Patterns to exclude (can be relative
 #                                            #  to BASE_DIRECTORY, with CMake 3.4+)
+#     JSON                                   # Export report in json format (json report 
+#                                            #  can be merged by gcovr)
 # )
 # The user can set the variable GCOVR_ADDITIONAL_ARGS to supply additional flags to the
 # GCVOR command.
 function(setup_target_for_coverage_gcovr_xml)
 
-    set(options NONE)
+    set(options JSON)
     set(oneValueArgs BASE_DIRECTORY NAME)
     set(multiValueArgs EXCLUDE EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
@@ -453,9 +455,18 @@ function(setup_target_for_coverage_gcovr_xml)
     set(GCOVR_XML_EXEC_TESTS_CMD
         ${Coverage_EXECUTABLE} ${Coverage_EXECUTABLE_ARGS}
     )
+
+    if(${Coverage_JSON})
+        set(REPORT_NAME ${Coverage_NAME}.json)
+        set(REPORT_COMMAND "--json")
+    else()
+        set(REPORT_NAME ${Coverage_NAME}.xml)
+        set(REPORT_COMMAND "--xml")
+    endif()
+
     # Running gcovr
     set(GCOVR_XML_CMD
-        ${GCOVR_PATH} --xml ${Coverage_NAME}.xml -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
+        ${GCOVR_PATH} --output ${REPORT_NAME} ${REPORT_COMMAND} -r ${BASEDIR} ${GCOVR_ADDITIONAL_ARGS}
         ${GCOVR_EXCLUDE_ARGS} --object-directory=${PROJECT_BINARY_DIR}
     )
 
@@ -475,7 +486,7 @@ function(setup_target_for_coverage_gcovr_xml)
         COMMAND ${GCOVR_XML_EXEC_TESTS_CMD}
         COMMAND ${GCOVR_XML_CMD}
 
-        BYPRODUCTS ${Coverage_NAME}.xml
+        BYPRODUCTS ${REPORT_NAME}
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
         VERBATIM # Protect arguments to commands
@@ -485,7 +496,7 @@ function(setup_target_for_coverage_gcovr_xml)
     # Show info where to find the report
     add_custom_command(TARGET ${Coverage_NAME} POST_BUILD
         COMMAND ;
-        COMMENT "Cobertura code coverage report saved in ${Coverage_NAME}.xml."
+        COMMENT "Cobertura code coverage report saved in ${REPORT_NAME}."
     )
 endfunction() # setup_target_for_coverage_gcovr_xml
 
