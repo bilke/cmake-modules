@@ -143,7 +143,7 @@ MACRO(__OpenSG_ADJUST_LIB_VARS basename)
 
     ENDIF(OpenSG_INCLUDE_DIR)
 
-    # Make variables changeble to the advanced user
+    # Make variables changeable to the advanced user
     MARK_AS_ADVANCED(
         OpenSG_${basename}_LIBRARY
         OpenSG_${basename}_LIBRARY_RELEASE
