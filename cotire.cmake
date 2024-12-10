@@ -72,12 +72,12 @@ if (POLICY CMP0040)
 endif()
 
 if (POLICY CMP0045)
-	# error on non-existent target in get_target_property
+	# error on nonexistent target in get_target_property
 	cmake_policy(SET CMP0045 NEW)
 endif()
 
 if (POLICY CMP0046)
-	# error on non-existent dependency in add_dependencies
+	# error on nonexistent dependency in add_dependencies
 	cmake_policy(SET CMP0046 NEW)
 endif()
 
