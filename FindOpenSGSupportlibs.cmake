@@ -37,7 +37,7 @@ if (NOT OpenSGSupportlibs_FOUND)
     endif ()
 
     # Set the include dir variables and the libraries and let libfind_process do the rest.
-    # NOTE: Singular variables for this library, plural for libraries this this lib depends on.
+    # NOTE: Singular variables for this library, plural for libraries this lib depends on.
     set(OpenSGSupportlibs_PROCESS_INCLUDES OpenSGSupportlibs_INCLUDE_DIR)
     set(OpenSGSupportlibs_PROCESS_LIBS OpenSGSupportlibs_LIBRARY)
     libfind_process(OpenSGSupportlibs)
