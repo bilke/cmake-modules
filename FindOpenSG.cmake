@@ -236,7 +236,7 @@ ELSE(__OpenSG_IN_CACHE)
     ENDIF(OPENSG_LIBRARY_SEARCH_DIR)
 
     IF(NOT OpenSG_INCLUDE_DIR)
-        # try to find include dirrectory by searching for OSGConfigured.h
+        # try to find include directory by searching for OSGConfigured.h
         FIND_PATH(OpenSG_INCLUDE_DIR
             NAMES         OpenSG/OSGConfigured.h
             HINTS         ${__OpenSG_INCLUDE_SEARCH_DIRS})
