@@ -379,7 +379,7 @@ function(setup_target_for_coverage_lcov)
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
         DEPENDS ${Coverage_DEPENDENCIES}
         VERBATIM # Protect arguments to commands
-        COMMENT "Resetting code coverage counters to zero.\nProcessing code coverage counters and generating report."
+        COMMENT "Resetting code coverage counters to zero. Processing code coverage counters and generating report."
     )
 
     # Show where to find the lcov info report
