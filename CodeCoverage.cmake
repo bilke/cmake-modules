@@ -153,6 +153,7 @@ endif() # NOT GCOV_PATH
 
 # Check supported compiler (Clang, GNU and Flang)
 get_property(LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
+list(REMOVE_ITEM LANGUAGES NONE)
 foreach(LANG ${LANGUAGES})
   if("${CMAKE_${LANG}_COMPILER_ID}" MATCHES "(Apple)?[Cc]lang")
     if("${CMAKE_${LANG}_COMPILER_VERSION}" VERSION_LESS 3)
