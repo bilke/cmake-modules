@@ -151,6 +151,16 @@ if(NOT GCOV_PATH)
     message(FATAL_ERROR "gcov not found! Aborting...")
 endif() # NOT GCOV_PATH
 
+if(LCOV_PATH)
+    set(lcov_message "Found Lcov: ${LCOV_PATH}")
+    execute_process(COMMAND ${LCOV_PATH} "--version" OUTPUT_VARIABLE LCOV_VERSION_OUTPUT)
+    if("${LCOV_VERSION_OUTPUT}" MATCHES "lcov: LCOV version ([0-9]+\\.[0-9]+(\\.[0-9]+)?)(-[0-9])?\n")
+        set(LCOV_VERSION "${CMAKE_MATCH_1}")
+        string(APPEND lcov_message " (found version ${LCOV_VERSION})")
+    endif()
+    message(STATUS "${lcov_message}")
+endif()
+
 # Check supported compiler (Clang, GNU and Flang)
 get_property(LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES)
 list(REMOVE_ITEM LANGUAGES NONE)
