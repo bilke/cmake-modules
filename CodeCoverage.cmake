@@ -168,31 +168,43 @@ endforeach()
 set(COVERAGE_COMPILER_FLAGS "-g --coverage"
     CACHE INTERNAL "")
 
+set(COVERAGE_CXX_COMPILER_FLAGS ${COVERAGE_COMPILER_FLAGS})
 if(CMAKE_CXX_COMPILER_ID MATCHES "(GNU|Clang)")
     include(CheckCXXCompilerFlag)
     check_cxx_compiler_flag(-fprofile-abs-path HAVE_cxx_fprofile_abs_path)
     if(HAVE_cxx_fprofile_abs_path)
-        set(COVERAGE_CXX_COMPILER_FLAGS "${COVERAGE_COMPILER_FLAGS} -fprofile-abs-path")
+        set(COVERAGE_CXX_COMPILER_FLAGS "${COVERAGE_CXX_COMPILER_FLAGS} -fprofile-abs-path")
     endif()
 endif()
+
+set(COVERAGE_C_COMPILER_FLAGS ${COVERAGE_COMPILER_FLAGS})
 if(CMAKE_C_COMPILER_ID MATCHES "(GNU|Clang)")
     include(CheckCCompilerFlag)
     check_c_compiler_flag(-fprofile-abs-path HAVE_c_fprofile_abs_path)
     if(HAVE_c_fprofile_abs_path)
-        set(COVERAGE_C_COMPILER_FLAGS "${COVERAGE_COMPILER_FLAGS} -fprofile-abs-path")
+        set(COVERAGE_C_COMPILER_FLAGS "${COVERAGE_C_COMPILER_FLAGS} -fprofile-abs-path")
+    endif()
+endif()
+
+set(COVERAGE_Fortran_COMPILER_FLAGS ${COVERAGE_COMPILER_FLAGS})
+if(CMAKE_Fortran_COMPILER_ID MATCHES "(GNU|Clang)")
+    include(CheckFortranCompilerFlag)
+    check_fortran_compiler_flag(-fprofile-abs-path HAVE_fortran_fprofile_abs_path)
+    if(HAVE_fortran_fprofile_abs_path)
+        set(COVERAGE_Fortran_COMPILER_FLAGS "${COVERAGE_Fortran_COMPILER_FLAGS} -fprofile-abs-path")
     endif()
 endif()
 
 set(CMAKE_Fortran_FLAGS_COVERAGE
-    ${COVERAGE_COMPILER_FLAGS}
+    ${COVERAGE_Fortran_COMPILER_FLAGS}
     CACHE STRING "Flags used by the Fortran compiler during coverage builds."
     FORCE )
 set(CMAKE_CXX_FLAGS_COVERAGE
-    ${COVERAGE_COMPILER_FLAGS}
+    ${COVERAGE_C_COMPILER_FLAGS}
     CACHE STRING "Flags used by the C++ compiler during coverage builds."
     FORCE )
 set(CMAKE_C_FLAGS_COVERAGE
-    ${COVERAGE_COMPILER_FLAGS}
+    ${COVERAGE_CXX_COMPILER_FLAGS}
     CACHE STRING "Flags used by the C compiler during coverage builds."
     FORCE )
 set(CMAKE_EXE_LINKER_FLAGS_COVERAGE
@@ -214,10 +226,6 @@ get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG
 if(NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR GENERATOR_IS_MULTI_CONFIG))
     message(WARNING "Code coverage results with an optimised (non-Debug) build may be misleading")
 endif() # NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR GENERATOR_IS_MULTI_CONFIG)
-
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
-    link_libraries(gcov)
-endif()
 
 # Defines a target for running and collection code coverage information
 # Builds dependencies, runs the given executable and outputs reports.
@@ -735,16 +743,21 @@ function(setup_target_for_coverage_fastcov)
 endfunction() # setup_target_for_coverage_fastcov
 
 function(append_coverage_compiler_flags)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
-    set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${COVERAGE_COMPILER_FLAGS}" PARENT_SCOPE)
-    message(STATUS "Appending code coverage compiler flags: ${COVERAGE_COMPILER_FLAGS}")
+    foreach(LANG ${LANGUAGES})
+        set(CMAKE_${LANG}_FLAGS "${CMAKE_${LANG}_FLAGS} ${CMAKE_${LANG}_FLAGS_COVERAGE}" PARENT_SCOPE)
+        message(STATUS "Appending code coverage compiler flags for ${LANG}: ${CMAKE_${LANG}_FLAGS_COVERAGE}")
+    endforeach()
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
+        link_libraries(gcov)
+    endif()
 endfunction() # append_coverage_compiler_flags
 
 # Setup coverage for specific library
 function(append_coverage_compiler_flags_to_target name)
-    separate_arguments(_flag_list NATIVE_COMMAND "${COVERAGE_COMPILER_FLAGS}")
-    target_compile_options(${name} PRIVATE ${_flag_list})
+    foreach(LANG ${LANGUAGES})
+        separate_arguments(_flag_list NATIVE_COMMAND "${CMAKE_${LANG}_FLAGS_COVERAAE}")
+        target_compile_options(${name} PRIVATE $<$<COMPILE_LANGUAGE:${LANG}>:${_flag_list}>)
+    endforeach()
     if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU" OR CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
         target_link_libraries(${name} PRIVATE gcov)
     endif()
