@@ -238,6 +238,8 @@ endif() # NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR GENERATOR_IS_MULTI_CONFIG)
 #     DEPENDENCIES testrunner                     # Dependencies to build first
 #     BASE_DIRECTORY "../"                        # Base directory for report
 #                                                 #  (defaults to PROJECT_SOURCE_DIR)
+#     DATA_DIRECTORY "./"                         # Data directory
+#                                                 #  (defaults to PROJECT_BINARY_DIR)
 #     EXCLUDE "src/dir1/*" "src/dir2/*"           # Patterns to exclude (can be relative
 #                                                 #  to BASE_DIRECTORY, with CMake 3.4+)
 #     NO_DEMANGLE                                 # Don't demangle C++ symbols
@@ -246,7 +248,7 @@ endif() # NOT (CMAKE_BUILD_TYPE STREQUAL "Debug" OR GENERATOR_IS_MULTI_CONFIG)
 function(setup_target_for_coverage_lcov)
 
     set(options NO_DEMANGLE SONARQUBE)
-    set(oneValueArgs BASE_DIRECTORY NAME)
+    set(oneValueArgs BASE_DIRECTORY DATA_DIRECTORY NAME)
     set(multiValueArgs EXCLUDE EXECUTABLE EXECUTABLE_ARGS DEPENDENCIES LCOV_ARGS GENHTML_ARGS)
     cmake_parse_arguments(Coverage "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
@@ -277,18 +279,24 @@ function(setup_target_for_coverage_lcov)
 
     # Conditional arguments
     if(CPPFILT_PATH AND NOT ${Coverage_NO_DEMANGLE})
-      set(GENHTML_EXTRA_ARGS "--demangle-cpp")
+        set(GENHTML_EXTRA_ARGS "--demangle-cpp")
+    endif()
+
+    if(DEFINED Coverage_DATA_DIRECTORY)
+        set(LCOV_DATA_DIRECTORY ${Coverage_DATA_DIRECTORY})
+    else()
+        set(LCOV_DATA_DIRECTORY ${PROJECT_BINARY_DIR})
     endif()
 
     # Setting up commands which will be run to generate coverage data.
     # Cleanup lcov
     set(LCOV_CLEAN_CMD
-        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory .
+        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory ${LCOV_DATA_DIRECTORY}
         -b ${BASEDIR} --zerocounters
     )
     # Create baseline to make sure untouched files show up in the report
     set(LCOV_BASELINE_CMD
-        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d . -b
+        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} -c -i -d ${LCOV_DATA_DIRECTORY} -b
         ${BASEDIR} -o ${Coverage_NAME}.base
     )
     # Run tests
@@ -297,7 +305,7 @@ function(setup_target_for_coverage_lcov)
     )
     # Capturing lcov counters and generating report
     set(LCOV_CAPTURE_CMD
-        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory . -b
+        ${LCOV_PATH} ${Coverage_LCOV_ARGS} --gcov-tool ${GCOV_PATH} --directory ${LCOV_DATA_DIRECTORY} -b
         ${BASEDIR} --capture --output-file ${Coverage_NAME}.capture
     )
     # add baseline counters
