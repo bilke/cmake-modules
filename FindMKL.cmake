@@ -13,7 +13,7 @@
 # See accompanying file LICENSE.txt or
 # http://www.opengeosys.org/project/license
 
-# Lookg for MKL root dir
+# Look for MKL root dir
 if (NOT MKL_DIR)
     find_path(MKL_DIR
         include/mkl.h

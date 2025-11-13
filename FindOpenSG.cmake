@@ -143,7 +143,7 @@ MACRO(__OpenSG_ADJUST_LIB_VARS basename)
 
     ENDIF(OpenSG_INCLUDE_DIR)
 
-    # Make variables changeble to the advanced user
+    # Make variables changeable to the advanced user
     MARK_AS_ADVANCED(
         OpenSG_${basename}_LIBRARY
         OpenSG_${basename}_LIBRARY_RELEASE
@@ -236,7 +236,7 @@ ELSE(__OpenSG_IN_CACHE)
     ENDIF(OPENSG_LIBRARY_SEARCH_DIR)
 
     IF(NOT OpenSG_INCLUDE_DIR)
-        # try to find include dirrectory by searching for OSGConfigured.h
+        # try to find include directory by searching for OSGConfigured.h
         FIND_PATH(OpenSG_INCLUDE_DIR
             NAMES         OpenSG/OSGConfigured.h
             HINTS         ${__OpenSG_INCLUDE_SEARCH_DIRS})
