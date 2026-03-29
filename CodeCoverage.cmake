@@ -90,6 +90,9 @@
 # 2026-01-20, Michał Sawicz
 #     - add `-fprofile-update=atomic` flag, if supported, for concurrent test runs
 #
+# 2026-03-25, pcb2gcode
+#     - pick gcov matching g++ (e.g. gcov-10 for g++-10) so lcov agrees with .gcno version
+#
 # USAGE:
 #
 # 1. Copy this file into your cmake modules path.
@@ -142,8 +145,18 @@ include(CMakeParseArguments)
 
 option(CODE_COVERAGE_VERBOSE "Verbose information" FALSE)
 
-# Check prereqs
-find_program( GCOV_PATH NAMES gcov )
+# Check prereqs — gcov major must match the compiler that emitted .gcno (e.g. g++-10 → gcov-10).
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  get_filename_component(_pcb2gcode_gxx_basename "${CMAKE_CXX_COMPILER}" NAME_WE)
+  if(_pcb2gcode_gxx_basename MATCHES "^g\\+\\+")
+    string(REPLACE "g++" "gcov" _pcb2gcode_gcov_name "${_pcb2gcode_gxx_basename}")
+    find_program(GCOV_PATH NAMES "${_pcb2gcode_gcov_name}" gcov)
+  else()
+    find_program(GCOV_PATH NAMES gcov)
+  endif()
+else()
+  find_program(GCOV_PATH NAMES gcov)
+endif()
 find_program( LCOV_PATH NAMES lcov lcov.bat lcov.exe lcov.perl )
 find_program( FASTCOV_PATH NAMES fastcov fastcov.py )
 find_program( GENHTML_PATH NAMES genhtml genhtml.perl genhtml.bat )
